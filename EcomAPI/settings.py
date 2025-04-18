@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'customer',
     'exceptions',
     'security',
+    'logs',
 
 ]
 
@@ -167,3 +168,33 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "xxxx@gmail.com"  # Replace with valid email address
 EMAIL_HOST_PASSWORD = "xxxx xxxx xxxx xxxx"
+
+# Error Logging Configuration
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "db": {
+            "level": "ERROR",
+            "class": "logs.handlers.DBHandler",
+            "formatter": "simple",
+        },
+    },
+
+    "loggers": {
+
+        "custom": {
+            "handlers": ["db"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}

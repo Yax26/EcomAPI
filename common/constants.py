@@ -19,6 +19,7 @@ PASSWORD_MUST_HAVE_ONE_SMALLERCASE_LETTER = "Your password must have at least 1 
 PASSWORD_MUST_HAVE_ONE_SPECIAL_CHARACTER = "Your password must have at least 1 special character ($, #, @, !, *)"
 PASSWORD_MUST_HAVE_ONE_UPPERCASE_LETTER = "Your password must have at least 1 uppercase letter."
 PASSWORD_UPDATED_SUCCESSFULLY = "Password updated successfully"
+EMAIL_IS_INVALID = "Email is invalid"
 
 # Data Validation & Serialization
 BAD_REQUEST = "Some required fields missing"

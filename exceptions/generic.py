@@ -1,6 +1,11 @@
+import logging
+
 from django.http import JsonResponse
+
 from rest_framework import status
 from rest_framework.exceptions import APIException
+
+logger = logging.getLogger('custom')
 
 
 class GenericException(JsonResponse):
@@ -11,6 +16,7 @@ class GenericException(JsonResponse):
     def __init__(self, message=None,
                  data=None,
                  code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                 request=None,
                  *args,
                  **kwargs):
 
@@ -20,7 +26,6 @@ class GenericException(JsonResponse):
             self.message = message
 
         self.code = code
-
         if data is None:
             self.response_data = []
 
@@ -32,9 +37,23 @@ class GenericException(JsonResponse):
             }
         }
 
-        self.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-
         super().__init__(*args, **kwargs, data=self.data)
+
+        request_method = None
+        request_url = None
+
+        if self.code == 500:
+
+            if request.method and request.build_absolute_uri():
+
+                request_method = request.method
+                request_url = request.build_absolute_uri()
+
+            logger.error(self.message, exc_info=True, extra={
+                'status_code': self.code,
+                'request_method': request_method,
+                'request_url': request_url,
+            })
 
 
 class CustomBadRequest(GenericException):
@@ -76,7 +95,7 @@ class CustomAuthenticationFailed(GenericException):
         self.code = status.HTTP_401_UNAUTHORIZED
 
         if message is None:
-            self.message = "Not Found"
+            self.message = "Unauthorized"
 
         self.status_code = status.HTTP_401_UNAUTHORIZED
 

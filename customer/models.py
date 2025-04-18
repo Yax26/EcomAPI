@@ -15,4 +15,5 @@ class Customer(Audit):
     contact_number = models.CharField(max_length=255, unique=True)
     password = models.CharField(max_length=255, blank=True)
     address = models.CharField(max_length=255, blank=True)
+
     email = models.EmailField(unique=True)

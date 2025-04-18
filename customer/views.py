@@ -1,22 +1,18 @@
-import re
-import traceback
-
-from rest_framework.views import APIView
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password, check_password
+
+from rest_framework.views import APIView
+
 from email_validator import validate_email, EmailNotValidError
+
 
 from common.constants import (
     AUTHORIZATION_HEADER_MISSING,
     BAD_REQUEST,
     DATA_IS_INVALID,
+    EMAIL_IS_INVALID,
     INCORRECT_PASSWORD,
     NEW_PASSWORDS_DOES_NOT_MATCH,
-    PASSWORD_LENGTH_SHOULD_BE_BETWEEN_8_TO_20,
-    PASSWORD_MUST_HAVE_ONE_NUMBER,
-    PASSWORD_MUST_HAVE_ONE_SMALLERCASE_LETTER,
-    PASSWORD_MUST_HAVE_ONE_SPECIAL_CHARACTER,
-    PASSWORD_MUST_HAVE_ONE_UPPERCASE_LETTER,
     PASSWORD_UPDATED_SUCCESSFULLY,
     USER_ALREADY_EXISTS,
     USER_LOGGED_IN_SUCCESSFULLY,
@@ -25,7 +21,7 @@ from common.constants import (
     USER_REGISTERED_SUCCESSFULLY,
     YOUR_CURRENT_PASSWORD_IS_INCORRECT,
 )
-from common.views import send_registration_email
+from common.views import send_registration_email, validate_password
 
 from customer.models import Customer
 from customer.serializers import RegistrationSerializer
@@ -37,12 +33,8 @@ from security.customer_authorization import CustomerJWTAuthentication, get_custo
 from security.models import CustomerAuthTokens
 
 
-# Create your views here
-
-
 class Registration(APIView):
-    @staticmethod
-    def post(request):
+    def post(self, request):
         try:
 
             if (
@@ -55,21 +47,13 @@ class Registration(APIView):
             ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
-            validation = validate_email(request.data['email'])
+            email_validation = validate_email(request.data['email'])
 
-            password = request.data["password"]
-            special_characters = r"[\$#@!\*]"
+            password_validation_response = validate_password(
+                request.data["password"])
 
-            if len(password) < 8 or len(password) > 20:
-                return CustomBadRequest(message=PASSWORD_LENGTH_SHOULD_BE_BETWEEN_8_TO_20)
-            if re.search('[0-9]', password) is None:
-                return CustomBadRequest(message=PASSWORD_MUST_HAVE_ONE_NUMBER)
-            if re.search('[a-z]', password) is None:
-                return CustomBadRequest(message=PASSWORD_MUST_HAVE_ONE_SMALLERCASE_LETTER)
-            if re.search('[A-Z]', password) is None:
-                return CustomBadRequest(message=PASSWORD_MUST_HAVE_ONE_UPPERCASE_LETTER)
-            if re.search(special_characters, password) is None:
-                return CustomBadRequest(message=PASSWORD_MUST_HAVE_ONE_SPECIAL_CHARACTER)
+            if password_validation_response:
+                return password_validation_response
 
             if Customer.objects.filter(email=request.data['email']):
                 return CustomBadRequest(message=USER_ALREADY_EXISTS)
@@ -79,13 +63,13 @@ class Registration(APIView):
             # Hash the password before saving
             request.data["password"] = make_password(request.data["password"])
 
-            if registration_serializer.is_valid(raise_exception=True):
-
+            if registration_serializer.is_valid():
                 customer = registration_serializer.save()
                 tokens = get_customer_authentication_token(customer)
                 save_token(tokens)
 
                 # Uncomment the line below to send a registration email
+
                 # message = f"Hi {customer.first_name},\n\nThank you for registering on our platform. We're excited to have you!\n\nBest Regards,\E-commerce Team"
                 # send_registration_email(customer.email, customer.first_name, message=message)
 
@@ -94,17 +78,20 @@ class Registration(APIView):
             return CustomBadRequest(message=DATA_IS_INVALID)
 
         except EmailNotValidError as e:
-            return CustomBadRequest(message=str(e))
+
+            # For exact error message
+            # return CustomBadRequest(message=str(e))
+
+            return CustomBadRequest(message=EMAIL_IS_INVALID)
 
         except Exception:
-            return GenericException()
+            return GenericException(request=request)
 
 
 class Logout(APIView):
     authentication_classes = [CustomerJWTAuthentication]
 
-    @staticmethod
-    def delete(request):
+    def delete(self, request):
 
         try:
             header = request.headers.get("authorization")
@@ -117,18 +104,20 @@ class Logout(APIView):
             CustomerAuthTokens.objects.filter(
                 Q(access_token=token) | Q(refresh_token=token)).delete()
 
-            return GenericSuccessResponse(message=USER_LOGGED_OUT_SUCCESSFULLY, status=200)
+            return GenericSuccessResponse(message=USER_LOGGED_OUT_SUCCESSFULLY, status=204)
 
         except Exception:
-            return GenericException()
+            return GenericException(request=request)
 
 
 class Login(APIView):
-    @staticmethod
-    def post(request):
+    def post(self, request):
         try:
 
-            if "email" not in request.data or request.data["email"] == "" or "password" not in request.data or request.data["password"] == "":
+            if (
+                "email" not in request.data or request.data["email"] == "" or
+                "password" not in request.data or request.data["password"] == ""
+            ):
                 return CustomBadRequest(BAD_REQUEST)
 
             email = request.data.get("email")
@@ -155,14 +144,13 @@ class Login(APIView):
             return CustomNotFound(message=USER_NOT_FOUND)
 
         except Exception:
-            return GenericException()
+            return GenericException(request=request)
 
 
 class ResetPassword(APIView):
     authentication_classes = [CustomerJWTAuthentication]
 
-    @staticmethod
-    def patch(request):
+    def patch(self, request):
         try:
             if (
                 "current_password" not in request.data or request.data["current_password"] == "" or
@@ -176,30 +164,22 @@ class ResetPassword(APIView):
             new_password = request.data.get("new_password")
             confirm_password = request.data.get("confirm_password")
 
-            # if current_password != customer.password:
-            #     return CustomBadRequest(message=YOUR_CURRENT_PASSWORD_IS_INCORRECT)
-
             if not check_password(current_password, customer.password):
-                return CustomBadRequest(message=YOUR_CURRENT_PASSWORD_IS_INCORRECT)
+                return CustomBadRequest(
+                    message=YOUR_CURRENT_PASSWORD_IS_INCORRECT)
 
             if new_password != confirm_password:
                 return CustomBadRequest(message=NEW_PASSWORDS_DOES_NOT_MATCH)
 
-            if len(new_password) < 8 or len(new_password) > 20:
-                return CustomBadRequest(message=PASSWORD_LENGTH_SHOULD_BE_BETWEEN_8_TO_20)
-            if re.search('[0-9]', new_password) is None:
-                return CustomBadRequest(message=PASSWORD_MUST_HAVE_ONE_NUMBER)
-            if re.search('[a-z]', new_password) is None:
-                return CustomBadRequest(message=PASSWORD_MUST_HAVE_ONE_SMALLERCASE_LETTER)
-            if re.search('[A-Z]', new_password) is None:
-                return CustomBadRequest(message=PASSWORD_MUST_HAVE_ONE_UPPERCASE_LETTER)
-            if re.search(r"[\$#@!\*]", new_password) is None:
-                return CustomBadRequest(message=PASSWORD_MUST_HAVE_ONE_SPECIAL_CHARACTER)
+            password_validation_response = validate_password(new_password)
+
+            if password_validation_response:
+                return password_validation_response
 
             customer.password = make_password(new_password)
             customer.save()
 
             return GenericSuccessResponse(message=PASSWORD_UPDATED_SUCCESSFULLY, status=200)
 
-        except Exception as e:
-            return GenericException()
+        except Exception:
+            return GenericException(request=request)
