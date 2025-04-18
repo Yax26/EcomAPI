@@ -43,6 +43,21 @@ class GenericException(JsonResponse):
         request_url = None
 
         if self.code == 500 and request:
+            if request.method and request.build_absolute_uri():
+
+                request_method = request.method
+                request_url = request.build_absolute_uri()
+
+            logger.error(self.message, exc_info=True, extra={
+                'status_code': self.code,
+                'request_method': request_method,
+                'request_url': request_url,
+            })
+
+        request_method = None
+        request_url = None
+
+        if self.code == 500 and request:
 
             if request.method and request.build_absolute_uri():
 
@@ -117,5 +132,5 @@ class CustomPermissionDenied(GenericException):
 
 class BadRequest(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_code = 1400
+    default_code = 400
     default_detail = 'Bad Request'

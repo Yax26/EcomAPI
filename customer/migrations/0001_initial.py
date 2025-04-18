@@ -17,7 +17,8 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('is_deleted', models.BooleanField(default=False)),
-                ('customer_id', models.BigAutoField(primary_key=True, serialize=False)),
+                ('customer_id', models.BigAutoField(
+                    primary_key=True, serialize=False)),
                 ('first_name', models.CharField(blank=True, max_length=255)),
                 ('middle_name', models.CharField(blank=True, max_length=255)),
                 ('last_name', models.CharField(blank=True, max_length=255)),

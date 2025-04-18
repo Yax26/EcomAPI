@@ -14,12 +14,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CustomerAuthTokens',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('is_deleted', models.BooleanField(default=False)),
-                ('access_token', models.TextField(db_column='auth_access_token', null=True)),
-                ('refresh_token', models.TextField(db_column='auth_refresh_token', null=True)),
+                ('access_token', models.TextField(
+                    db_column='auth_access_token', null=True)),
+                ('refresh_token', models.TextField(
+                    db_column='auth_refresh_token', null=True)),
             ],
             options={
                 'db_table': 'ec_customer_auth_tokens',
