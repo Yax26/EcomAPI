@@ -21,7 +21,7 @@ from common.constants import (
     USER_REGISTERED_SUCCESSFULLY,
     YOUR_CURRENT_PASSWORD_IS_INCORRECT,
 )
-from common.views import send_registration_email, validate_password
+from common.helpers import send_registration_email, validate_password
 
 from customer.models import Customer
 from customer.serializers import RegistrationSerializer
