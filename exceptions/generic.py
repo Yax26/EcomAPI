@@ -42,7 +42,7 @@ class GenericException(JsonResponse):
         request_method = None
         request_url = None
 
-        if self.code == 500:
+        if self.code == 500 and request:
 
             if request.method and request.build_absolute_uri():
 
