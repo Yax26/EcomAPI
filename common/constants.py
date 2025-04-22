@@ -26,3 +26,8 @@ BAD_REQUEST = "Some required fields missing"
 DATA_IS_INVALID = "data is invalid"
 DATA_NOT_FOUND = "data not found"
 SERIALIZER_IS_NOT_VALID = "serializer is not valid"
+
+
+# homepage related constants
+
+SUCCESSFULLY_FETCHED_HOMEPAGE_DATA = "Successfully fetched homepage data"
