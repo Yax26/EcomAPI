@@ -5,7 +5,7 @@ class Audit(models.Model):
     class Meta:
         abstract = True
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
-    is_deleted = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False, null=True, blank=True)
