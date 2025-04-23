@@ -8,4 +8,4 @@ class Audit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
-    is_deleted = models.BooleanField(default=False, null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)

@@ -55,8 +55,6 @@ class Banner(Audit):
     banner_title = models.CharField(max_length=255)
     banner_keyword = models.CharField(max_length=255, null=True, blank=True)
 
-    banner_image = models.FileField(upload_to='banner/')
-
     banner_description = models.TextField(null=True, blank=True)
 
     banner_image = models.FileField(
