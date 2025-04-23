@@ -41,6 +41,12 @@ class ViewFeaturesWASerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class AddFeaturesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Features
+        fields = "__all__"
+
+
 class BannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Banner
