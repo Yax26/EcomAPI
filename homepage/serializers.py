@@ -36,7 +36,8 @@ class ViewFeaturesWASerializer(serializers.ModelSerializer):
                   "arrival_date",
                   "feature_image1",
                   "feature_image2",
-                  "feature_image3",]
+                  "feature_image3",
+                  "feature_image4",]
         read_only_fields = fields
 
 
