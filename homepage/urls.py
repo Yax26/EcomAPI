@@ -7,9 +7,9 @@ app_name = "homepage"
 
 urlpatterns = [
 
-    path("homepagema/", HomePageMA.as_view()),
+    path("mobile/", HomePageMA.as_view()),
 
-    path("homepagewa/", HomePageWA.as_view()),
+    path("web/", HomePageWA.as_view()),
 
 
 ]
