@@ -45,8 +45,18 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# Allow all origins
+CORS_ALLOW_ALL_ORIGINS = True
 
-# Application definition
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    "*",
+]
+
+CORS_ALLOW_HEADERS = [
+    "*",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
