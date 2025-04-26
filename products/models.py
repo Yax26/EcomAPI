@@ -1,0 +1,34 @@
+from django.db import models
+
+from homepage.models import Categories
+from common.models import Audit
+
+
+class Products(Audit):
+    class Meta:
+        db_table = 'ec_products'
+
+    product_id = models.AutoField(primary_key=True)
+
+    product_name = models.CharField(max_length=255)
+    product_keywords = models.CharField(max_length=255, null=True, blank=True)
+
+    product_description = models.TextField(null=True, blank=True)
+
+    product_rating = models.IntegerField(null=True, blank=True, default=0)
+    product_discount = models.IntegerField(null=True, blank=True)
+    product_available_quantity = models.IntegerField(null=True, blank=True)
+    product_total_sales = models.IntegerField(null=True, blank=True)
+
+    product_image = models.ImageField(
+        upload_to='products/', null=True, blank=True)
+
+    product_price = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
+    product_final_price = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
+
+    product_arival_date = models.DateField(null=True, blank=True)
+
+    product_category = models.ForeignKey(
+        Categories, on_delete=models.CASCADE, null=True, blank=True)
