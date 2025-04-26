@@ -19,6 +19,6 @@ class ViewProductsListingSerializer(serializers.ModelSerializer):
                   "product_image",
                   "product_price",
                   "product_final_price",
-                  "product_category", ]
+                  ]
 
         read_only_fields = fields
