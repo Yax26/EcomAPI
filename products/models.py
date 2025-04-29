@@ -20,7 +20,7 @@ class Products(Audit):
     product_available_quantity = models.IntegerField(null=True, blank=True)
     product_total_sales = models.IntegerField(null=True, blank=True)
 
-    product_image = models.ImageField(
+    product_image = models.FileField(
         upload_to='products/', null=True, blank=True)
 
     product_price = models.DecimalField(
