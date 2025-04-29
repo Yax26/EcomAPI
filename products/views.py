@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
 
-from exceptions.generic import CustomBadRequest
+from exceptions.generic import CustomBadRequest, GenericException
 from exceptions.generic_response import GenericSuccessResponse
 
 from homepage.models import Features
@@ -50,7 +50,7 @@ class SearchedProducts(APIView):
             return GenericSuccessResponse(serialized_products.data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
 
         except Exception:
-            return GenericSuccessResponse()
+            return GenericException(request=request)
 
 
 class FeaturedProducts(APIView):
@@ -103,7 +103,7 @@ class FeaturedProducts(APIView):
             return GenericSuccessResponse(serialized_products.data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
 
         except Exception:
-            return GenericSuccessResponse()
+            return GenericException(request=request)
 
 
 class AddProductData(APIView):
@@ -133,8 +133,8 @@ class AddProductData(APIView):
                 product_serializer.save()
                 
                 return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=200)
-
+            
             return CustomBadRequest(message=DATA_IS_INVALID)
 
         except Exception:
-            return GenericSuccessResponse()
+            return GenericException(request=request)
