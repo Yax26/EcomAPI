@@ -111,7 +111,7 @@ class AddProductData(APIView):
     @staticmethod
     def post(request):
         try:
-
+            print("check here 1")
             if ("product_name" not in request.data or request.data["product_name"] == "" or
                 "product_keywords" not in request.data or
                 "product_description" not in request.data or
@@ -125,13 +125,13 @@ class AddProductData(APIView):
                     "product_category" not in request.data):
 
                 return CustomBadRequest(message=BAD_REQUEST)
-
+            print("check here 2")
             product_serializer = AddProductSerializer(data=request.data)
 
             if product_serializer.is_valid():
-
+                print("check here 3")
                 product_serializer.save()
-                print("check here")
+                
                 return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=200)
 
             return CustomBadRequest(message=DATA_IS_INVALID)
