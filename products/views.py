@@ -63,23 +63,23 @@ class FeaturedProducts(APIView):
 
             if feature.max_price:
                 products = Products.objects.filter(
-                    product_price__lte=Decimal(feature.max_price), is_deleted=False)
+                    product_price__lte=Decimal(feature.max_price), is_deleted=False).order_by('product_price')
 
             if feature.min_price:
                 products = Products.objects.filter(
-                    product_price__gte=Decimal(feature.min_price), is_deleted=False)
+                    product_price__gte=Decimal(feature.min_price), is_deleted=False).order_by('-product_price')
 
             if feature.max_discount:
                 products = Products.objects.filter(
-                    product_discount__lte=Decimal(feature.max_discount), is_deleted=False)
+                    product_discount__lte=Decimal(feature.max_discount), is_deleted=False).order_by('-product_discount')
 
             if feature.min_discount:
                 products = Products.objects.filter(
-                    product_discount__gte=Decimal(feature.min_discount), is_deleted=False)
+                    product_discount__gte=Decimal(feature.min_discount), is_deleted=False).order_by('-product_discount')
 
             if feature.arrival_date:
                 products = Products.objects.filter(
-                    product_arival_date__gte=feature.arrival_date, is_deleted=False)
+                    product_arival_date__gte=feature.arrival_date, is_deleted=False).order_by('-product_arival_date')
 
             if feature.category_id:
                 products = Products.objects.filter(
@@ -87,7 +87,7 @@ class FeaturedProducts(APIView):
 
             if feature.total_sales:
                 products = Products.objects.filter(
-                    product_total_sales__gte=feature.total_sales, is_deleted=False).order_by('product_total_sales')
+                    product_total_sales__gte=feature.total_sales, is_deleted=False).order_by('-product_total_sales')
 
             if feature.feature_keywords:
                 products = Products.objects.filter(
@@ -131,6 +131,7 @@ class AddProductData(APIView):
             if product_serializer.is_valid():
 
                 product_serializer.save()
+
                 return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=200)
 
             return CustomBadRequest(message=DATA_IS_INVALID)
