@@ -128,7 +128,7 @@ class AddProductData(APIView):
             print("check here 2")
             product_serializer = AddProductSerializer(data=request.data)
 
-            if product_serializer.is_valid():
+            if product_serializer.is_valid(raise_exception=True):
                 print("check here 3")
                 product_serializer.save()
                 
