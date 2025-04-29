@@ -131,7 +131,7 @@ class AddProductData(APIView):
             if product_serializer.is_valid():
 
                 product_serializer.save()
-
+                print("check here")
                 return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=200)
 
             return CustomBadRequest(message=DATA_IS_INVALID)
