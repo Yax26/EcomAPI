@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 
 from common.constants import BAD_REQUEST, DATA_IS_INVALID, HOMEPAGE_DATA_ADDED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA
 
-from exceptions.generic import CustomBadRequest
+from exceptions.generic import CustomBadRequest, GenericException
 from exceptions.generic_response import GenericSuccessResponse
 
 from homepage.serializers import AddFeaturesSerializer, BannerSerializer, ViewFeaturesMASerializer, ViewFeaturesWASerializer
@@ -23,7 +23,7 @@ class HomePageMA(APIView):
 
             return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
         except Exception:
-            return GenericSuccessResponse()
+            return GenericException(request=request)
 
 
 class HomePageWA(APIView):
@@ -40,7 +40,7 @@ class HomePageWA(APIView):
             return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
         except Exception:
 
-            return GenericSuccessResponse()
+            return GenericException(request=request)
 
 
 class AddFeatureData(APIView):
@@ -75,7 +75,7 @@ class AddFeatureData(APIView):
 
         except Exception:
 
-            return GenericSuccessResponse()
+            return GenericException(request=request)
 
 
 class AddBannerData(APIView):
@@ -100,4 +100,4 @@ class AddBannerData(APIView):
             return CustomBadRequest(message=DATA_IS_INVALID)
         except Exception:
 
-            return GenericSuccessResponse()
+            return GenericException(request=request)
