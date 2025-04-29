@@ -3,7 +3,7 @@ from django.urls import path
 from .views import AddProductData, FeaturedProducts, SearchedProducts
 
 
-app_name = "homepage"
+app_name = "products"
 
 urlpatterns = [
 
