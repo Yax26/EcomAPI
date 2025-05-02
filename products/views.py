@@ -118,7 +118,7 @@ class AddProductData(APIView):
                 "product_rating" not in request.data or
                 "product_discount" not in request.data or
                 "product_available_quantity" not in request.data or request.data["product_available_quantity"] == "" or
-                "product_image" not in request.data or
+                "product_image" not in request.FILES or
                 "product_price" not in request.data or request.data["product_price"] == "" or
                 "product_arival_date" not in request.data or
                 "product_final_price" not in request.data or
