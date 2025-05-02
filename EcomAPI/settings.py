@@ -208,6 +208,7 @@ EMAIL_HOST_PASSWORD = "xxxx xxxx xxxx xxxx"
 
 # setting max header size
 DATA_UPLOAD_MAX_HEADER_SIZE = 262144
+print("DATA_UPLOAD_MAX_HEADER_SIZE", DATA_UPLOAD_MAX_HEADER_SIZE)
 
 # Error Logging Configuration
 LOGGING = {
