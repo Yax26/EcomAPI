@@ -14,6 +14,11 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import pymysql
+import django.http.multipartparser
+
+django.http.multipartparser.MAX_TOTAL_HEADER_SIZE = 10 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+print("DATA_UPLOAD_MAX_MEMORY_SIZE",DATA_UPLOAD_MAX_MEMORY_SIZE)
 
 pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -206,9 +211,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "xxxx@gmail.com"  # Replace with valid email address
 EMAIL_HOST_PASSWORD = "xxxx xxxx xxxx xxxx"
 
-# setting max header size
-DATA_UPLOAD_MAX_HEADER_SIZE = 10 * 1024 * 1024
-print("DATA_UPLOAD_MAX_HEADER_SIZE", DATA_UPLOAD_MAX_HEADER_SIZE)
+
 
 # Error Logging Configuration
 LOGGING = {
