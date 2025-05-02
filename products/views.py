@@ -112,19 +112,19 @@ class AddProductData(APIView):
     def post(request):
         try:
             print("check here 1")
-            # if ("product_name" not in request.data or request.data["product_name"] == "" or
-            #     "product_keywords" not in request.data or
-            #     "product_description" not in request.data or
-            #     "product_rating" not in request.data or
-            #     "product_discount" not in request.data or
-            #     "product_available_quantity" not in request.data or request.data["product_available_quantity"] == "" or
-            #     "product_image" not in request.data or
-            #     "product_price" not in request.data or request.data["product_price"] == "" or
-            #     "product_arival_date" not in request.data or
-            #     "product_final_price" not in request.data or
-            #         "product_category" not in request.data):
+            if ("product_name" not in request.data or request.data["product_name"] == "" or
+                "product_keywords" not in request.data or
+                "product_description" not in request.data or
+                "product_rating" not in request.data or
+                "product_discount" not in request.data or
+                "product_available_quantity" not in request.data or request.data["product_available_quantity"] == "" or
+                "product_image" not in request.data or
+                "product_price" not in request.data or request.data["product_price"] == "" or
+                "product_arival_date" not in request.data or
+                "product_final_price" not in request.data or
+                    "product_category" not in request.data):
 
-            #     return CustomBadRequest(message=BAD_REQUEST)
+                return CustomBadRequest(message=BAD_REQUEST)
             print("check here 2")
             product_serializer = AddProductSerializer(data=request.data)
 
