@@ -207,7 +207,7 @@ EMAIL_HOST_USER = "xxxx@gmail.com"  # Replace with valid email address
 EMAIL_HOST_PASSWORD = "xxxx xxxx xxxx xxxx"
 
 # setting max header size
-DATA_UPLOAD_MAX_HEADER_SIZE = 262144
+DATA_UPLOAD_MAX_HEADER_SIZE = 10 * 1024 * 1024
 print("DATA_UPLOAD_MAX_HEADER_SIZE", DATA_UPLOAD_MAX_HEADER_SIZE)
 
 # Error Logging Configuration
