@@ -70,8 +70,11 @@ class CustomerJWTAuthentication(authentication.BaseAuthentication):
         try:
             header = request.headers.get("authorization")
 
-            if "authorization" not in request.headers:
-                raise PermissionDenied()
+            # if "authorization" not in request.headers:
+            #     raise PermissionDenied()
+
+            if not header:
+                return None
 
             customer_token = header.split(" ")[1]
 
@@ -92,8 +95,8 @@ class CustomerJWTAuthentication(authentication.BaseAuthentication):
 
             return customer, claims
 
-        except PermissionDenied as e:
-            raise PermissionDenied()
+        # except PermissionDenied as e:
+        #     raise PermissionDenied()
 
         except AuthenticationFailed as e:
             raise AuthenticationFailed(detail=TOKEN_IS_EXPIRED)

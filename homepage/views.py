@@ -1,6 +1,10 @@
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+
+from django.contrib.auth.models import AnonymousUser
 
 
+from security.customer_authorization import CustomerJWTAuthentication
 from common.constants import BAD_REQUEST, DATA_IS_INVALID, HOMEPAGE_DATA_ADDED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA
 
 from exceptions.generic import CustomBadRequest, GenericException
@@ -11,6 +15,8 @@ from homepage.models import Banner, Features
 
 
 class HomePageMA(APIView):
+    authentication_classes = [CustomerJWTAuthentication]
+    permission_classes = [AllowAny]
 
     @staticmethod
     def get(request):
@@ -18,15 +24,29 @@ class HomePageMA(APIView):
             features = Features.objects.filter(is_deleted=False)
             banner = Banner.objects.filter(is_deleted=False)
 
-            data = {'features':
-                    ViewFeaturesMASerializer(features, many=True).data, 'banner': BannerSerializer(banner, many=True).data}
+            if request.user != AnonymousUser():
+                customer_name = ""
+
+                customer_name = request.user.first_name + \
+                    " " + request.user.last_name
+
+                data = {'customer_name': customer_name,
+                        'features': ViewFeaturesMASerializer(features, many=True).data,
+                        'banner': BannerSerializer(banner, many=True).data}
+
+            else:
+                data = {'features':
+                        ViewFeaturesMASerializer(features, many=True).data, 'banner': BannerSerializer(banner, many=True).data}
 
             return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
+
         except Exception:
             return GenericException(request=request)
 
 
 class HomePageWA(APIView):
+    authentication_classes = [CustomerJWTAuthentication]
+    permission_classes = [AllowAny]
 
     @staticmethod
     def get(request):
@@ -34,12 +54,24 @@ class HomePageWA(APIView):
             features = Features.objects.filter(is_deleted=False)
             banner = Banner.objects.filter(is_deleted=False)
 
-            data = {'features':
-                    ViewFeaturesWASerializer(features, many=True).data, 'banner': BannerSerializer(banner, many=True).data}
+            if request.user != AnonymousUser():
+
+                customer_name = ""
+
+                customer_name = request.user.first_name + \
+                    " " + request.user.last_name
+
+                data = {'customer_name': customer_name,
+                        'features': ViewFeaturesWASerializer(features, many=True).data,
+                        'banner': BannerSerializer(banner, many=True).data}
+
+            else:
+                data = {'features': ViewFeaturesWASerializer(features, many=True).data,
+                        'banner': BannerSerializer(banner, many=True).data}
 
             return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
-        except Exception:
 
+        except Exception:
             return GenericException(request=request)
 
 
