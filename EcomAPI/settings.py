@@ -206,6 +206,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "xxxx@gmail.com"  # Replace with valid email address
 EMAIL_HOST_PASSWORD = "xxxx xxxx xxxx xxxx"
 
+# setting max header size
+DATA_UPLOAD_MAX_HEADER_SIZE = 131072
+
 # Error Logging Configuration
 LOGGING = {
     "version": 1,
