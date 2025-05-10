@@ -1,5 +1,4 @@
 from decimal import Decimal
-import traceback
 from rest_framework.views import APIView
 from django.db.models import Q
 
@@ -189,27 +188,25 @@ class ProductRating(APIView):
             return GenericSuccessResponse(message=PRODUCT_RATED_SUCCESSFULLY)
 
         except Exception as e:
-            return GenericException(traceback.print_exc(), request=request)
+            return GenericException(request=request)
 
 
 class ProductsDetails(APIView):
-    authentication_classes = [CustomerJWTAuthentication]
 
     @staticmethod
     def get(request):
         try:
             product_id = request.query_params.get("product_id")
-            customer_id = request.user.customer_id
             if product_id:
 
                 product_details = Products.objects.get(
                     is_deleted=False, product_id=product_id)
 
                 product_ratings = ProductRatingModel.objects.get(
-                    is_deleted=False, product_id=product_id, customer_id=customer_id)
+                    is_deleted=False, product_id=product_id)
 
                 product_reviews = ProductReviewModel.objects.get(
-                    is_deleted=False, product_id=product_id, customer_id=customer_id)
+                    is_deleted=False, product_id=product_id)
 
                 data = {"product_details": ViewProductsDetailsSerializer(product_details).data,
                         "product_ratings": FetchProductRatingSerializer(product_ratings).data,
@@ -224,4 +221,4 @@ class ProductsDetails(APIView):
         except ProductReviewModel.DoesNotExist:
             return CustomBadRequest(message=DATA_NOT_FOUND)
         except Exception:
-            return GenericException(traceback.print_exc(), request=request)
+            return GenericException(request=request)
