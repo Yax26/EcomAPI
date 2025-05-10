@@ -1,5 +1,6 @@
 from django.db import models
 
+from customer.models import Customer
 from homepage.models import Categories
 from common.models import Audit
 
@@ -32,3 +33,23 @@ class Products(Audit):
 
     product_category = models.ForeignKey(
         Categories, on_delete=models.CASCADE, null=True, blank=True)
+
+
+class ProductRatingModel(Audit):
+    class Meta:
+        db_table = 'ec_product_rating'
+
+    product_rating_id = models.AutoField(primary_key=True)
+    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    product_rating = models.IntegerField()
+
+
+class ProductReviewModel(Audit):
+    class Meta:
+        db_table = 'ec_product_review'
+
+    product_review_id = models.BigAutoField(primary_key=True)
+    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    product_review = models.TextField()

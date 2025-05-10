@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from products.models import Products
+from products.models import ProductRatingModel, ProductReviewModel, Products
 
 
 class AddProductSerializer(serializers.ModelSerializer):
@@ -22,3 +22,15 @@ class ViewProductsListingSerializer(serializers.ModelSerializer):
                   ]
 
         read_only_fields = fields
+
+
+class ProductRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductRatingModel
+        fields = "__all__"
+
+
+class ProductReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductReviewModel
+        fields = "__all__"

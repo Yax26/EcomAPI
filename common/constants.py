@@ -34,3 +34,8 @@ SUCCESSFULLY_FETCHED_HOMEPAGE_DATA = "Successfully fetched homepage data"
 HOMEPAGE_DATA_ADDED_SUCCESSFULLY = "Homepage data added successfully"
 SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS = "Successfully fetched searched products"
 DATA_ADDED_SUCCESSFULLY = "data added successfully"
+
+
+# product related
+
+PRODUCT_RATED_SUCCESSFULLY = "Product rated Successfully"

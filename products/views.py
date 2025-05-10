@@ -1,17 +1,19 @@
 from decimal import Decimal
+import traceback
 from rest_framework.views import APIView
 from django.db.models import Q
 
 
-from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
+from security.customer_authorization import CustomerJWTAuthentication
+from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, PRODUCT_RATED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
 
 from exceptions.generic import CustomBadRequest, GenericException
 from exceptions.generic_response import GenericSuccessResponse
 
 from homepage.models import Features
 
-from products.models import Products
-from products.serializers import AddProductSerializer, ViewProductsListingSerializer
+from products.models import ProductRatingModel, ProductReviewModel, Products
+from products.serializers import AddProductSerializer, ProductRatingSerializer, ProductReviewSerializer, ViewProductsListingSerializer
 from products.paginations import CustomPagination
 
 
@@ -105,6 +107,8 @@ class FeaturedProducts(APIView):
         except Exception:
             return GenericException(request=request)
 
+# just for testing purpose
+
 
 class AddProductData(APIView):
 
@@ -131,10 +135,56 @@ class AddProductData(APIView):
             if product_serializer.is_valid(raise_exception=True):
                 print("check here 3")
                 product_serializer.save()
-                
+
                 return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=200)
-            
+
             return CustomBadRequest(message=DATA_IS_INVALID)
 
         except Exception:
             return GenericException(request=request)
+
+
+class ProductRating(APIView):
+    authentication_classes = [CustomerJWTAuthentication]
+
+    @staticmethod
+    def post(request):
+        try:
+            if ("product_id" not in request.data or request.data["product_id"] == "" or
+                        "product_rating" not in request.data or request.data["product_rating"] == ""
+                    ):
+                return CustomBadRequest(message=BAD_REQUEST)
+
+            request.data['customer_id'] = request.user.customer_id
+
+            rating_data = {"product_id": request.data["product_id"],
+                           "product_rating": request.data["product_rating"],
+                           "customer_id": request.data["customer_id"]}
+
+            product_rating_serializer = ProductRatingSerializer(
+                data=rating_data)
+
+            if "product_review" in request.data and request.data["product_review"] != "":
+                review_data = {"product_id": request.data["product_id"],
+                               "product_review": request.data["product_review"],
+                               "customer_id": request.data["customer_id"]}
+
+                product_review_serializer = ProductReviewSerializer(
+                    data=review_data)
+
+                if product_rating_serializer.is_valid(raise_exception=True) and product_review_serializer.is_valid(raise_exception=True):
+
+                    product_review_serializer.save()
+                    product_rating_serializer.save()
+
+                else:
+                    CustomBadRequest(message=DATA_IS_INVALID)
+            if product_rating_serializer.is_valid(raise_exception=True):
+                product_rating_serializer.save()
+            else:
+                CustomBadRequest(message=DATA_IS_INVALID)
+
+            return GenericSuccessResponse(message=PRODUCT_RATED_SUCCESSFULLY)
+
+        except Exception as e:
+            return GenericException(traceback.print_exc(), request=request)
