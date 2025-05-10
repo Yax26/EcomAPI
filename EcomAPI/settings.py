@@ -16,9 +16,9 @@ from datetime import timedelta
 import pymysql
 import django.http.multipartparser
 
-django.http.multipartparser.MAX_TOTAL_HEADER_SIZE = 10 * 1024 * 1024
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
-print("DATA_UPLOAD_MAX_MEMORY_SIZE",DATA_UPLOAD_MAX_MEMORY_SIZE)
+# django.http.multipartparser.MAX_TOTAL_HEADER_SIZE = 10 * 1024 * 1024
+# DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+# print("DATA_UPLOAD_MAX_MEMORY_SIZE",DATA_UPLOAD_MAX_MEMORY_SIZE)
 
 pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
