@@ -5,7 +5,7 @@ from django.db.models import Q
 
 
 from security.customer_authorization import CustomerJWTAuthentication
-from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, PRODUCT_IS_ALREADY_RATED, PRODUCT_RATED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
+from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, DATA_NOT_FOUND, PRODUCT_IS_ALREADY_RATED, PRODUCT_RATED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_PRODUCT_DETAILS, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
 
 from exceptions.generic import CustomBadRequest, GenericException
 from exceptions.generic_response import GenericSuccessResponse
@@ -13,7 +13,7 @@ from exceptions.generic_response import GenericSuccessResponse
 from homepage.models import Features
 
 from products.models import ProductRatingModel, ProductReviewModel, Products
-from products.serializers import AddProductSerializer, ProductRatingSerializer, ProductReviewSerializer, ViewProductsListingSerializer
+from products.serializers import AddProductSerializer, FetchProductRatingSerializer, FetchProductReviewSerializer, ProductRatingSerializer, ProductReviewSerializer, ViewProductsDetailsSerializer, ViewProductsListingSerializer
 from products.paginations import CustomPagination
 
 
@@ -151,7 +151,7 @@ class ProductRating(APIView):
     def post(request):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
-                    "product_rating" not in request.data or request.data["product_rating"] == ""
+                "product_rating" not in request.data or request.data["product_rating"] == ""
                 ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
@@ -189,4 +189,39 @@ class ProductRating(APIView):
             return GenericSuccessResponse(message=PRODUCT_RATED_SUCCESSFULLY)
 
         except Exception as e:
+            return GenericException(traceback.print_exc(), request=request)
+
+
+class ProductsDetails(APIView):
+    authentication_classes = [CustomerJWTAuthentication]
+
+    @staticmethod
+    def get(request):
+        try:
+            product_id = request.query_params.get("product_id")
+            customer_id = request.user.customer_id
+            if product_id:
+
+                product_details = Products.objects.get(
+                    is_deleted=False, product_id=product_id)
+
+                product_ratings = ProductRatingModel.objects.get(
+                    is_deleted=False, product_id=product_id, customer_id=customer_id)
+
+                product_reviews = ProductReviewModel.objects.get(
+                    is_deleted=False, product_id=product_id, customer_id=customer_id)
+
+                data = {"product_details": ViewProductsDetailsSerializer(product_details).data,
+                        "product_ratings": FetchProductRatingSerializer(product_ratings).data,
+                        "product_reviews": FetchProductReviewSerializer(product_reviews).data}
+
+                return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_PRODUCT_DETAILS, status=200)
+
+        except Products.DoesNotExist:
+            return CustomBadRequest(message=DATA_NOT_FOUND)
+        except ProductRatingModel.DoesNotExist:
+            return CustomBadRequest(message=DATA_NOT_FOUND)
+        except ProductReviewModel.DoesNotExist:
+            return CustomBadRequest(message=DATA_NOT_FOUND)
+        except Exception:
             return GenericException(traceback.print_exc(), request=request)
