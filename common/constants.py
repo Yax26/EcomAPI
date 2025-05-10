@@ -39,3 +39,4 @@ DATA_ADDED_SUCCESSFULLY = "data added successfully"
 # product related
 
 PRODUCT_RATED_SUCCESSFULLY = "Product rated Successfully"
+PRODUCT_IS_ALREADY_RATED = "Product is already rated"

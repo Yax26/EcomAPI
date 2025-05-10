@@ -5,7 +5,7 @@ from django.db.models import Q
 
 
 from security.customer_authorization import CustomerJWTAuthentication
-from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, PRODUCT_RATED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
+from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, PRODUCT_IS_ALREADY_RATED, PRODUCT_RATED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
 
 from exceptions.generic import CustomBadRequest, GenericException
 from exceptions.generic_response import GenericSuccessResponse
@@ -151,12 +151,14 @@ class ProductRating(APIView):
     def post(request):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
-                        "product_rating" not in request.data or request.data["product_rating"] == ""
-                    ):
+                    "product_rating" not in request.data or request.data["product_rating"] == ""
+                ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
             request.data['customer_id'] = request.user.customer_id
 
+            if ProductRatingModel.objects.get(is_deleted=False, product_id=request.data['product_id'], customer_id=request.data["customer_id"]):
+                return CustomBadRequest(message=PRODUCT_IS_ALREADY_RATED)
             rating_data = {"product_id": request.data["product_id"],
                            "product_rating": request.data["product_rating"],
                            "customer_id": request.data["customer_id"]}
