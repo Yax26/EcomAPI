@@ -73,7 +73,7 @@ class CustomerJWTAuthentication(authentication.BaseAuthentication):
             # if "authorization" not in request.headers:
             #     raise PermissionDenied()
 
-            if not header:
+            if not header or len(header) < 12:
                 return None
 
             customer_token = header.split(" ")[1]
