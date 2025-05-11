@@ -154,7 +154,7 @@ class ProductRating(APIView):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
                     "product_rating" not in request.data or request.data["product_rating"] == ""
-                ):
+                    ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
             request.data['customer_id'] = request.user.customer_id
@@ -206,25 +206,37 @@ class ProductsDetails(APIView):
                 product_details = Products.objects.get(
                     is_deleted=False, product_id=product_id)
 
-                product_ratings = ProductRatingModel.objects.get(
+                product_ratings = ProductRatingModel.objects.filter(
                     is_deleted=False, product_id=product_id)
 
-                product_reviews = ProductReviewModel.objects.get(
+                product_reviews = ProductReviewModel.objects.filter(
                     is_deleted=False, product_id=product_id)
+
+                product_physical_details = {"product_brand": product_details.product_brand,
+                                            "product_color": product_details.product_color,
+                                            "product_weight": product_details.product_weight,
+                                            "product_dimension": product_details.product_dimension}
+
+                product_specifications = product_details.additional_specification
+                rating_stats = {"1": len(product_ratings.filter(product_rating=1)),
+                                "2": len(product_ratings.filter(product_rating=2)),
+                                "3": len(product_ratings.filter(product_rating=3)),
+                                "4": len(product_ratings.filter(product_rating=4)),
+                                "5": len(product_ratings.filter(product_rating=5))}
 
                 data = {"product_details": ViewProductsDetailsSerializer(product_details).data,
-                        "product_ratings": FetchProductRatingSerializer(product_ratings).data,
-                        "product_reviews": FetchProductReviewSerializer(product_reviews).data}
+                        "product_physical_details": product_physical_details,
+                        "product_specifications": product_specifications,
+                        "product_ratings": FetchProductRatingSerializer(product_ratings, many=True).data,
+                        "number_of_ratings": len(product_ratings),
+                        "rating_stats": rating_stats,
+                        "product_reviews": FetchProductReviewSerializer(product_reviews, many=True).data,
+                        "number_of_reviews": len(product_reviews),
+                        }
 
                 return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_PRODUCT_DETAILS, status=200)
 
         except Products.DoesNotExist:
-            return CustomBadRequest(message=DATA_NOT_FOUND)
-
-        except ProductRatingModel.DoesNotExist:
-            return CustomBadRequest(message=DATA_NOT_FOUND)
-
-        except ProductReviewModel.DoesNotExist:
             return CustomBadRequest(message=DATA_NOT_FOUND)
 
         except Exception:
