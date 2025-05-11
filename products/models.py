@@ -34,6 +34,17 @@ class Products(Audit):
     product_category = models.ForeignKey(
         Categories, on_delete=models.CASCADE, null=True, blank=True)
 
+    product_brand = models.CharField(null=True, blank=True, max_length=255)
+
+    product_dimension = models.CharField(null=True, blank=True, max_length=255)
+
+    product_weight = models.CharField(null=True, blank=True, max_length=255)
+
+    product_color = models.CharField(null=True, blank=True, max_length=255)
+
+    additional_specification = models.JSONField(
+        null=True, blank=True)
+
 
 class ProductRatingModel(Audit):
     class Meta:

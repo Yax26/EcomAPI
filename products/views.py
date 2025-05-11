@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from django.db.models import Q
 
 
-from security.customer_authorization import CustomerJWTAuthentication
 from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, DATA_NOT_FOUND, PRODUCT_IS_ALREADY_RATED, PRODUCT_RATED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_PRODUCT_DETAILS, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
 
 from exceptions.generic import CustomBadRequest, GenericException
@@ -14,6 +13,8 @@ from homepage.models import Features
 from products.models import ProductRatingModel, ProductReviewModel, Products
 from products.serializers import AddProductSerializer, FetchProductRatingSerializer, FetchProductReviewSerializer, ProductRatingSerializer, ProductReviewSerializer, ViewProductsDetailsSerializer, ViewProductsListingSerializer
 from products.paginations import CustomPagination
+
+from security.customer_authorization import CustomerJWTAuthentication
 
 
 class SearchedProducts(APIView):
@@ -114,25 +115,27 @@ class AddProductData(APIView):
     @staticmethod
     def post(request):
         try:
-            print("check here 1")
-            # if ("product_name" not in request.data or request.data["product_name"] == "" or
-            #     "product_keywords" not in request.data or
-            #     "product_description" not in request.data or
-            #     "product_rating" not in request.data or
-            #     "product_discount" not in request.data or
-            #     "product_available_quantity" not in request.data or request.data["product_available_quantity"] == "" or
-            #     "product_image" not in request.FILES or
-            #     "product_price" not in request.data or request.data["product_price"] == "" or
-            #     "product_arival_date" not in request.data or
-            #     "product_final_price" not in request.data or
-            #         "product_category" not in request.data):
+            if ("product_name" not in request.data or request.data["product_name"] == "" or
+                "product_keywords" not in request.data or
+                "product_description" not in request.data or
+                "product_rating" not in request.data or
+                "product_discount" not in request.data or
+                "product_available_quantity" not in request.data or request.data["product_available_quantity"] == "" or
+                "product_image" not in request.FILES or
+                "product_price" not in request.data or request.data["product_price"] == "" or
+                "product_arival_date" not in request.data or
+                "product_final_price" not in request.data or
+                "product_category" not in request.data or
+                "product_brand" not in request.data or
+                "product_dimension" not in request.data or
+                "product_weight" not in request.data or
+                "product_color" not in request.data or
+                    "additional_specification" not in request.data):
 
-            #     return CustomBadRequest(message=BAD_REQUEST)
-            print("check here 2")
+                return CustomBadRequest(message=BAD_REQUEST)
             product_serializer = AddProductSerializer(data=request.data)
 
             if product_serializer.is_valid(raise_exception=True):
-                print("check here 3")
                 product_serializer.save()
 
                 return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=200)
@@ -150,14 +153,15 @@ class ProductRating(APIView):
     def post(request):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
-                "product_rating" not in request.data or request.data["product_rating"] == ""
+                    "product_rating" not in request.data or request.data["product_rating"] == ""
                 ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
             request.data['customer_id'] = request.user.customer_id
 
-            if ProductRatingModel.objects.get(is_deleted=False, product_id=request.data['product_id'], customer_id=request.data["customer_id"]):
+            if ProductRatingModel.objects.filter(is_deleted=False, product_id=request.data['product_id'], customer_id=request.data["customer_id"]).exists():
                 return CustomBadRequest(message=PRODUCT_IS_ALREADY_RATED)
+
             rating_data = {"product_id": request.data["product_id"],
                            "product_rating": request.data["product_rating"],
                            "customer_id": request.data["customer_id"]}
@@ -216,9 +220,12 @@ class ProductsDetails(APIView):
 
         except Products.DoesNotExist:
             return CustomBadRequest(message=DATA_NOT_FOUND)
+
         except ProductRatingModel.DoesNotExist:
             return CustomBadRequest(message=DATA_NOT_FOUND)
+
         except ProductReviewModel.DoesNotExist:
             return CustomBadRequest(message=DATA_NOT_FOUND)
+
         except Exception:
             return GenericException(request=request)

@@ -9,19 +9,6 @@ class AddProductSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ViewProductsDetailsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Products
-        fields = ["product_id",
-                  "product_name",
-                  "product_description",
-                  "product_rating",
-                  "product_discount",
-                  "product_image",
-                  "product_price",
-                  "product_final_price"]
-
-
 class ViewProductsListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Products
@@ -37,6 +24,25 @@ class ViewProductsListingSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class ViewProductsDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Products
+        fields = ["product_id",
+                  "product_name",
+                  "product_description",
+                  "product_rating",
+                  "product_discount",
+                  "product_image",
+                  "product_price",
+                  "product_final_price",
+                  "product_brand",
+                  "product_dimension",
+                  "product_weight",
+                  "product_color",
+                  "additional_specification"]
+        read_only_fields = fields
+
+
 class ProductRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductRatingModel
@@ -47,6 +53,7 @@ class FetchProductRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductRatingModel
         fields = ["product_rating_id", "product_rating"]
+        read_only_fields = fields
 
 
 class ProductReviewSerializer(serializers.ModelSerializer):
@@ -59,3 +66,4 @@ class FetchProductReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductReviewModel
         fields = ["product_review_id", "product_review", "updated_at"]
+        read_only_fields = fields
