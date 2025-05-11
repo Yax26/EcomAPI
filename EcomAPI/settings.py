@@ -75,7 +75,8 @@ INSTALLED_APPS = [
     'security',
     'logs',
     'homepage',
-    'products'
+    'products',
+    'cart'
 
 ]
 
