@@ -138,7 +138,7 @@ class AddProductData(APIView):
             if product_serializer.is_valid(raise_exception=True):
                 product_serializer.save()
 
-                return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=200)
+                return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=201)
 
             return CustomBadRequest(message=DATA_IS_INVALID)
 
@@ -189,7 +189,7 @@ class ProductRating(APIView):
             else:
                 CustomBadRequest(message=DATA_IS_INVALID)
 
-            return GenericSuccessResponse(message=PRODUCT_RATED_SUCCESSFULLY)
+            return GenericSuccessResponse(message=PRODUCT_RATED_SUCCESSFULLY, status=201)
 
         except Exception as e:
             return GenericException(request=request)
@@ -211,7 +211,6 @@ class ProductsDetails(APIView):
 
                 product_reviews = ProductReviewModel.objects.filter(
                     is_deleted=False, product_id=product_id)
-
                 product_physical_details = {"product_brand": product_details.product_brand,
                                             "product_color": product_details.product_color,
                                             "product_weight": product_details.product_weight,

@@ -101,7 +101,7 @@ class AddFeatureData(APIView):
             if add_features_serializer.is_valid():
                 add_features_serializer.save()
 
-                return GenericSuccessResponse(message=HOMEPAGE_DATA_ADDED_SUCCESSFULLY, status=200)
+                return GenericSuccessResponse(message=HOMEPAGE_DATA_ADDED_SUCCESSFULLY, status=201)
 
             return CustomBadRequest(message=DATA_IS_INVALID)
 
@@ -127,7 +127,7 @@ class AddBannerData(APIView):
             if add_banner_serializer.is_valid():
                 add_banner_serializer.save()
 
-                return GenericSuccessResponse(message=HOMEPAGE_DATA_ADDED_SUCCESSFULLY, status=200)
+                return GenericSuccessResponse(message=HOMEPAGE_DATA_ADDED_SUCCESSFULLY, status=201)
 
             return CustomBadRequest(message=DATA_IS_INVALID)
         except Exception:

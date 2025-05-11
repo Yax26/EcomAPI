@@ -41,3 +41,7 @@ DATA_ADDED_SUCCESSFULLY = "data added successfully"
 PRODUCT_RATED_SUCCESSFULLY = "Product rated Successfully"
 PRODUCT_IS_ALREADY_RATED = "Product is already rated"
 SUCCESSFULLY_FETCHED_PRODUCT_DETAILS = "successfully fetched product details"
+
+# cart related
+
+DATA_ADDED_TO_CART_SUCCESSFULLY = "data added to cart successfully"
