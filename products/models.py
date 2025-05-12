@@ -53,7 +53,7 @@ class ProductRatingModel(Audit):
     product_rating_id = models.AutoField(primary_key=True)
     product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    product_rating = models.TextField(null=True, blank=True)
+    product_rating = models.IntegerField(null=True, blank=True)
     product_review = models.TextField(null=True, blank=True)
 
 
