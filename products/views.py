@@ -3,7 +3,13 @@ from rest_framework.views import APIView
 from django.db.models import Q
 
 
-from common.constants import BAD_REQUEST, DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID, DATA_NOT_FOUND, PRODUCT_IS_ALREADY_RATED, PRODUCT_RATED_SUCCESSFULLY, SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, SUCCESSFULLY_FETCHED_PRODUCT_DETAILS, SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS
+from common.constants import (BAD_REQUEST,
+                              DATA_ADDED_SUCCESSFULLY, DATA_IS_INVALID,
+                              DATA_NOT_FOUND, PRODUCT_IS_ALREADY_RATED,
+                              PRODUCT_RATED_SUCCESSFULLY,
+                              SUCCESSFULLY_FETCHED_HOMEPAGE_DATA,
+                              SUCCESSFULLY_FETCHED_PRODUCT_DETAILS,
+                              SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS)
 
 from exceptions.generic import CustomBadRequest, GenericException
 from exceptions.generic_response import GenericSuccessResponse
@@ -153,7 +159,7 @@ class ProductRating(APIView):
     def post(request):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
-                    "product_rating" not in request.data or request.data["product_rating"] == ""
+                        "product_rating" not in request.data or request.data["product_rating"] == ""
                     ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
@@ -216,7 +222,6 @@ class ProductsDetails(APIView):
                                             "product_weight": product_details.product_weight,
                                             "product_dimension": product_details.product_dimension}
 
-                product_specifications = product_details.additional_specification
                 rating_stats = {"1": len(product_ratings.filter(product_rating=1)),
                                 "2": len(product_ratings.filter(product_rating=2)),
                                 "3": len(product_ratings.filter(product_rating=3)),
@@ -225,7 +230,6 @@ class ProductsDetails(APIView):
 
                 data = {"product_details": ViewProductsDetailsSerializer(product_details).data,
                         "product_physical_details": product_physical_details,
-                        "product_specifications": product_specifications,
                         "product_ratings": FetchProductRatingSerializer(product_ratings, many=True).data,
                         "number_of_ratings": len(product_ratings),
                         "rating_stats": rating_stats,
