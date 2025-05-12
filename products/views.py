@@ -170,26 +170,18 @@ class ProductRating(APIView):
 
             rating_data = {"product_id": request.data["product_id"],
                            "product_rating": request.data["product_rating"],
+                           "product_review": request.data["product_review"],
                            "customer_id": request.data["customer_id"]}
 
             product_rating_serializer = ProductRatingSerializer(
                 data=rating_data)
 
-            if "product_review" in request.data and request.data["product_review"] != "":
-                review_data = {"product_id": request.data["product_id"],
-                               "product_review": request.data["product_review"],
-                               "customer_id": request.data["customer_id"]}
+            if product_rating_serializer.is_valid(raise_exception=True):
 
-                product_review_serializer = ProductReviewSerializer(
-                    data=review_data)
+                product_rating_serializer.save()
 
-                if product_rating_serializer.is_valid(raise_exception=True) and product_review_serializer.is_valid(raise_exception=True):
-
-                    product_review_serializer.save()
-                    product_rating_serializer.save()
-
-                else:
-                    CustomBadRequest(message=DATA_IS_INVALID)
+            else:
+                CustomBadRequest(message=DATA_IS_INVALID)
             if product_rating_serializer.is_valid(raise_exception=True):
                 product_rating_serializer.save()
             else:

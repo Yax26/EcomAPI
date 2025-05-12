@@ -50,10 +50,24 @@ class ProductRatingSerializer(serializers.ModelSerializer):
 
 
 class FetchProductRatingSerializer(serializers.ModelSerializer):
+    updated_at = serializers.SerializerMethodField()
+    customer_id = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductRatingModel
-        fields = ["product_rating_id", "product_rating"]
+        fields = ["product_rating_id", "product_rating",
+                  "product_review", "customer_id", "updated_at"]
         read_only_fields = fields
+
+    def get_updated_at(self, obj):
+        if obj.updated_at:
+            return obj.updated_at.strftime('%B %d, %Y')
+        return None
+
+    def get_customer_id(self, obj):
+        if obj.customer_id:
+            return obj.customer_id.first_name + " " + obj.customer_id.last_name
+        return None
 
 
 class ProductReviewSerializer(serializers.ModelSerializer):
