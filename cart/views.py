@@ -1,12 +1,15 @@
 from decimal import Decimal
-import json
 from rest_framework.views import APIView
 
 
 from cart.models import Cart
 from cart.serializers import CartSerializer
 
-from common.constants import BAD_REQUEST, DATA_ADDED_TO_CART_SUCCESSFULLY, DATA_IS_INVALID, FETCHED_CART_DATA_SUCCESSFULLY, YOUR_CART_IS_EMPTY
+from common.constants import (BAD_REQUEST,
+                              DATA_ADDED_TO_CART_SUCCESSFULLY,
+                              DATA_IS_INVALID,
+                              FETCHED_CART_DATA_SUCCESSFULLY,
+                              YOUR_CART_IS_EMPTY)
 
 from exceptions.generic_response import GenericSuccessResponse
 from exceptions.generic import CustomBadRequest, GenericException
@@ -48,19 +51,36 @@ class CartManagement(APIView):
                 cart = Cart.objects.filter(
                     is_deleted=False, is_checked_out=False, customer_id=customer_id).last()
 
-                cart.products[str(request.data["product_id"])] = str(
-                    product_details.product_price)
+                product_found = False
+                for i in cart.products:
+                    if i["product_id"] == request.data["product_id"]:
+                        i["product_quantity"] += 1
+                        product_found = True
 
-                cart.total_amount = cart.total_amount + \
-                    Decimal(str(product_details.product_price))
+                if product_found == False:
+                    products = {"product_id": product_details.product_id,
+                                "product_price": str(product_details.product_price),
+                                "product_image": str(product_details.product_image),
+                                "product_name": product_details.product_name,
+                                "product_quantity": 1}
+
+                    cart.products.append(products)
+
+                cart.total_amount += Decimal(
+                    str(product_details.product_price))
 
                 cart.save()
 
                 return GenericSuccessResponse(message=DATA_ADDED_TO_CART_SUCCESSFULLY, status=201)
 
             else:
-                products = {str(request.data["product_id"]):
-                            str(product_details.product_price)}
+
+                products = [{"product_id": product_details.product_id,
+                             "product_price": str(product_details.product_price),
+                             "product_image": str(product_details.product_image),
+                             "product_name": product_details.product_name,
+                             "product_quantity": 1}
+                            ]
                 request.data["products"] = products
 
                 total_amount = Decimal(str(product_details.product_price))
