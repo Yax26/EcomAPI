@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 
 
 from cart.models import Cart
-from cart.serializers import CartSerializer
+from cart.serializers import CartSerializer, FetchCartSerializer
 
 from common.constants import (BAD_REQUEST,
                               DATA_ADDED_TO_CART_SUCCESSFULLY,
@@ -30,7 +30,8 @@ class CartManagement(APIView):
             cart = Cart.objects.filter(
                 is_deleted=False, is_checked_out=False, customer_id=request.user.customer_id).last()
 
-            return GenericSuccessResponse(data=CartSerializer(cart).data, message=FETCHED_CART_DATA_SUCCESSFULLY, status=200)
+            return GenericSuccessResponse(data=FetchCartSerializer(cart).data, message=FETCHED_CART_DATA_SUCCESSFULLY, status=200)
+
         else:
             return CustomBadRequest(message=YOUR_CART_IS_EMPTY)
 
@@ -66,8 +67,14 @@ class CartManagement(APIView):
 
                     cart.products.append(products)
 
-                cart.total_amount += Decimal(
+                cart.sub_total += Decimal(
                     str(product_details.product_price))
+
+                cart.delivery_fees = 5 * cart.sub_total / 100
+
+                cart.tax = 13 * cart.sub_total / 100
+
+                cart.total = cart.sub_total + cart.delivery_fees + cart.tax
 
                 cart.save()
 
@@ -84,7 +91,12 @@ class CartManagement(APIView):
                 request.data["products"] = products
 
                 total_amount = Decimal(str(product_details.product_price))
-                request.data["total_amount"] = total_amount
+
+                request.data["sub_total"] = total_amount
+                request.data["delivery_fees"] = 5 * total_amount / 100
+                request.data["tax"] = 13 * total_amount / 100
+                request.data["total"] = total_amount + \
+                    request.data["delivery_fees"] + request.data["tax"]
 
                 cart_serializer = CartSerializer(data=request.data)
 
