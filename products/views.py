@@ -168,6 +168,24 @@ class ProductRating(APIView):
             if ProductRatingModel.objects.filter(is_deleted=False, product_id=request.data['product_id'], customer_id=request.data["customer_id"]).exists():
                 return CustomBadRequest(message=PRODUCT_IS_ALREADY_RATED)
 
+            product_details = Products.objects.get(
+                product_id=request.data["product_id"], is_deleted=False)
+
+            ratings = ProductRatingModel.objects.filter(
+                is_deleted=False, product_id=request.data['product_id'])
+
+            total_rating = sum(ratings.values_list(
+                'product_rating', flat=True))+int(request.data["product_rating"])
+
+            product_rating = total_rating/(len(ratings)+1)
+
+            if product_rating-int(product_rating) >= 0.5:
+                product_rating = int(product_rating)+1
+            else:
+                product_rating = int(product_rating)
+
+            product_details.product_rating = product_rating
+
             rating_data = {"product_id": request.data["product_id"],
                            "product_rating": request.data["product_rating"],
                            "product_review": request.data["product_review"],
@@ -179,6 +197,7 @@ class ProductRating(APIView):
             if product_rating_serializer.is_valid(raise_exception=True):
 
                 product_rating_serializer.save()
+                product_details.save()
 
             else:
                 CustomBadRequest(message=DATA_IS_INVALID)
