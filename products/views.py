@@ -52,10 +52,8 @@ class SearchedProducts(APIView):
 
                 return GenericSuccessResponse(view_product_listing_serializer.data, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
 
-            serialized_products = ViewProductsListingSerializer(
-                products, many=True)
-
-            return GenericSuccessResponse(serialized_products.data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
+            else:
+                return CustomBadRequest(message=BAD_REQUEST)
 
         except Exception:
             return GenericException(request=request)
@@ -159,8 +157,8 @@ class ProductRating(APIView):
     def post(request):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
-                        "product_rating" not in request.data or request.data["product_rating"] == ""
-                    ):
+                "product_rating" not in request.data or request.data["product_rating"] == ""
+                ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
             request.data['customer_id'] = request.user.customer_id
