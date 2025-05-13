@@ -7,7 +7,7 @@ from cart.serializers import CartSerializer, FetchCartSerializer
 
 from common.constants import (BAD_REQUEST,
                               DATA_ADDED_TO_CART_SUCCESSFULLY,
-                              DATA_IS_INVALID,
+                              DATA_IS_INVALID, DATA_NOT_FOUND,
                               FETCHED_CART_DATA_SUCCESSFULLY,
                               YOUR_CART_IS_EMPTY)
 
@@ -107,6 +107,9 @@ class CartManagement(APIView):
 
                 else:
                     return CustomBadRequest(DATA_IS_INVALID)
+
+        except Products.DoesNotExist:
+            return CustomBadRequest(message=DATA_NOT_FOUND)
 
         except Exception:
             return GenericException(request=request)
