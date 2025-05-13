@@ -1,6 +1,6 @@
 from decimal import Decimal
 from rest_framework.views import APIView
-
+from decimal import Decimal, ROUND_HALF_UP
 
 from cart.models import Cart
 from cart.serializers import CartSerializer, FetchCartSerializer
@@ -67,14 +67,28 @@ class CartManagement(APIView):
 
                     cart.products.append(products)
 
-                cart.sub_total += Decimal(
-                    str(product_details.product_price))
+                # cart.sub_total += Decimal(
+                #     str(product_details.product_price))
 
-                cart.delivery_fees = 5 * cart.sub_total / 100
+                # cart.delivery_fees = 5 * cart.sub_total / 100
 
-                cart.tax = 13 * cart.sub_total / 100
+                # cart.tax = 13 * cart.sub_total / 100
 
-                cart.total = cart.sub_total + cart.delivery_fees + cart.tax
+                # cart.total = cart.sub_total + cart.delivery_fees + cart.tax
+
+                TWO_PLACES = Decimal('0.01')  # for 2 decimal places
+
+                cart.sub_total += Decimal(str(product_details.product_price)
+                                          ).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
+
+                cart.delivery_fees = (Decimal(
+                    '5') * cart.sub_total / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
+
+                cart.tax = (Decimal('13') * cart.sub_total / Decimal('100')
+                            ).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
+
+                cart.total = (cart.sub_total + cart.delivery_fees +
+                              cart.tax).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
 
                 cart.save()
 
@@ -90,13 +104,21 @@ class CartManagement(APIView):
                             ]
                 request.data["products"] = products
 
-                total_amount = Decimal(str(product_details.product_price))
+                TWO_PLACES = Decimal("0.01")
+
+                total_amount = Decimal(str(product_details.product_price)).quantize(
+                    TWO_PLACES, rounding=ROUND_HALF_UP)
 
                 request.data["sub_total"] = total_amount
-                request.data["delivery_fees"] = 5 * total_amount / 100
-                request.data["tax"] = 13 * total_amount / 100
-                request.data["total"] = total_amount + \
-                    request.data["delivery_fees"] + request.data["tax"]
+
+                request.data["delivery_fees"] = (Decimal(
+                    '5') * total_amount / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
+
+                request.data["tax"] = (Decimal(
+                    '13') * total_amount / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
+
+                request.data["total"] = (request.data["sub_total"] + request.data["delivery_fees"] +
+                                         request.data["tax"]).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
 
                 cart_serializer = CartSerializer(data=request.data)
 
