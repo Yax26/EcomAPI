@@ -49,15 +49,16 @@ class ProfilePersonalInfo(APIView):
     def patch(request):
         try:
             if ("first_name" not in request.data or request.data["first_name"] == "" or
-                "middle_name" not in request.data or
-                        "last_name" not in request.data or
-                    "contact_number" not in request.data or
-                    "gender" not in request.data or
-                "age" not in request.data
-                ):
+                    "middle_name" not in request.data or
+                    "last_name" not in request.data or
+                        "contact_number" not in request.data or
+                        "gender" not in request.data or
+                            "age" not in request.data or
+                            "department" not in request.data
+                    ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
-            if request.data["gender"] not in GenderType.choices():
+            if request.data["gender"] not in ["MALE", "FEMALE", "OTHERS", "PREFER_NOT_TO_SAY"]:
                 return CustomBadRequest(message=DATA_IS_INVALID)
 
             customer = Customer.objects.get(
@@ -101,11 +102,11 @@ class ProfileAddressInfo(APIView):
     def patch(request):
         try:
             if ("country" not in request.data or
-                "state" not in request.data or
-                        "city" not in request.data or
-                    "postal_code" not in request.data or
-                    "street" not in request.data
-                ):
+                    "state" not in request.data or
+                    "city" not in request.data or
+                        "postal_code" not in request.data or
+                        "street" not in request.data
+                    ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
             if not Country.objects.filter(country_id=request.data["country"]).exists():

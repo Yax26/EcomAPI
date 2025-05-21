@@ -14,14 +14,14 @@ class EditPersonalInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ["first_name", "middle_name",
-                  "last_name", "gender", "age", "contact_number"]
+                  "last_name", "gender", "age", "contact_number", "department"]
 
 
 class FetchPersonalInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ["first_name", "middle_name",
-                  "last_name", "email", "gender", "age", "contact_number"]
+                  "last_name", "email", "gender", "age", "contact_number", "department"]
 
         read_only_fields = fields
 

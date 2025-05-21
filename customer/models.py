@@ -61,6 +61,7 @@ class Customer(Audit):
         max_length=255, unique=True, blank=True, null=True)
     age = models.CharField(max_length=255, null=True, blank=True)
     password = models.CharField(max_length=255, blank=True)
+    department = models.CharField(max_length=255, blank=True)
 
     gender = models.CharField(
         choices=GenderType.choices(), max_length=255, null=True, blank=True)
