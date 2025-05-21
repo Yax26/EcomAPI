@@ -83,7 +83,7 @@ class AddStateSerializer(serializers.ModelSerializer):
 class FetchStateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
-        fields = ["state_id", "state_name", "state_code", "country"]
+        fields = ["state_id", "state_name", "state_code"]
         read_only_fields = fields
 
 
@@ -96,5 +96,5 @@ class AddCitySerializer(serializers.ModelSerializer):
 class FetchCitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
-        fields = ["city_id", "city_name", "state"]
+        fields = ["city_id", "city_name"]
         read_only_fields = fields

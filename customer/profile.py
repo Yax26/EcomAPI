@@ -49,12 +49,12 @@ class ProfilePersonalInfo(APIView):
     def patch(request):
         try:
             if ("first_name" not in request.data or request.data["first_name"] == "" or
-                    "middle_name" not in request.data or
-                    "last_name" not in request.data or
-                        "contact_number" not in request.data or
-                        "gender" not in request.data or
-                            "age" not in request.data or
-                            "department" not in request.data
+                        "middle_name" not in request.data or
+                        "last_name" not in request.data or
+                    "contact_number" not in request.data or
+                    "gender" not in request.data or
+                    "age" not in request.data or
+                    "department" not in request.data
                     ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
@@ -102,10 +102,10 @@ class ProfileAddressInfo(APIView):
     def patch(request):
         try:
             if ("country" not in request.data or
-                    "state" not in request.data or
-                    "city" not in request.data or
-                        "postal_code" not in request.data or
-                        "street" not in request.data
+                        "state" not in request.data or
+                        "city" not in request.data or
+                    "postal_code" not in request.data or
+                    "street" not in request.data
                     ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
@@ -179,7 +179,9 @@ class StateManagement(APIView):
     @staticmethod
     def get(request):
         try:
-            state = State.objects.filter(is_deleted=False)
+            country = request.query_params.get("country")
+
+            state = State.objects.filter(is_deleted=False, country=country)
 
             return GenericSuccessResponse(FetchStateSerializer(state, many=True).data, message="state fetched successfully", status=200)
 
@@ -218,7 +220,8 @@ class CityManagement(APIView):
     @staticmethod
     def get(request):
         try:
-            city = City.objects.filter(is_deleted=False)
+            state = request.query_params.get("state")
+            city = City.objects.filter(is_deleted=False, state=state)
 
             return GenericSuccessResponse(FetchCitySerializer(city, many=True).data, message="city fetched successfully", status=200)
 
