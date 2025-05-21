@@ -46,17 +46,17 @@ class FetchAddressInfoSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_country(self, obj):
-        if obj.updated_at:
+        if obj.country and obj.country.country_name:
             return obj.country.country_name
         return None
 
     def get_state(self, obj):
-        if obj.updated_at:
+        if obj.state and obj.state.state_name:
             return obj.state.state_name
         return None
 
     def get_city(self, obj):
-        if obj.updated_at:
+        if obj.city and obj.city.city_name:
             return obj.city.city_name
         return None
 

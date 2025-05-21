@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .profile import AddCity, AddState, CountryManagement, ProfileAddressInfo, ProfilePersonalInfo
+from .profile import CityManagement, CountryManagement, ProfileAddressInfo, ProfilePersonalInfo, StateManagement
 
 from .views import Registration, Logout, Login, ResetPassword
 
@@ -23,9 +23,9 @@ urlpatterns = [
 
     path("country/", CountryManagement.as_view()),
 
-    path("state/", AddState.as_view()),
+    path("state/", StateManagement.as_view()),
 
-    path("city/", AddCity.as_view())
+    path("city/", CityManagement.as_view())
 
 
 

@@ -139,7 +139,7 @@ class AddProductData(APIView):
                 return CustomBadRequest(message=BAD_REQUEST)
             product_serializer = AddProductSerializer(data=request.data)
 
-            if product_serializer.is_valid(raise_exception=True):
+            if product_serializer.is_valid():
                 product_serializer.save()
 
                 return GenericSuccessResponse(product_serializer.data, message=DATA_ADDED_SUCCESSFULLY, status=201)
@@ -192,14 +192,14 @@ class ProductRating(APIView):
             product_rating_serializer = ProductRatingSerializer(
                 data=rating_data)
 
-            if product_rating_serializer.is_valid(raise_exception=True):
+            if product_rating_serializer.is_valid():
 
                 product_rating_serializer.save()
                 product_details.save()
 
             else:
                 CustomBadRequest(message=DATA_IS_INVALID)
-            if product_rating_serializer.is_valid(raise_exception=True):
+            if product_rating_serializer.is_valid():
                 product_rating_serializer.save()
             else:
                 CustomBadRequest(message=DATA_IS_INVALID)

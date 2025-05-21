@@ -52,3 +52,6 @@ YOUR_CART_IS_EMPTY = "your cart is empty"
 
 PERSONAL_INFO_UPDATED_SUCCESSFULLY = "personal info updated successfully"
 ADDRESS_INFO_UPDATED_SUCCESSFULLY = "address info updated successfully"
+COUNTRY_DOES_NOT_EXISTS = "country does not exists"
+STATE_DOES_NOT_EXISTS = "state does not exists"
+CITY_DOES_NOT_EXISTS = "city does not exists"
