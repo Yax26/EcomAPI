@@ -11,9 +11,6 @@ class Products(Audit):
 
     product_id = models.AutoField(primary_key=True)
 
-    product_name = models.CharField(max_length=255)
-    product_keywords = models.CharField(max_length=255, null=True, blank=True)
-
     product_description = models.TextField(null=True, blank=True)
 
     product_rating = models.IntegerField(null=True, blank=True, default=0)
@@ -35,12 +32,11 @@ class Products(Audit):
         Categories, on_delete=models.CASCADE, null=True, blank=True)
 
     product_brand = models.CharField(null=True, blank=True, max_length=255)
-
     product_dimension = models.CharField(null=True, blank=True, max_length=255)
-
     product_weight = models.CharField(null=True, blank=True, max_length=255)
-
     product_color = models.CharField(null=True, blank=True, max_length=255)
+    product_name = models.CharField(max_length=255)
+    product_keywords = models.CharField(max_length=255, null=True, blank=True)
 
     additional_specification = models.JSONField(
         null=True, blank=True)
@@ -51,9 +47,12 @@ class ProductRatingModel(Audit):
         db_table = 'ec_product_rating'
 
     product_rating_id = models.AutoField(primary_key=True)
+
     product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
     product_rating = models.IntegerField(null=True, blank=True)
+
     product_review = models.TextField(null=True, blank=True)
 
 
@@ -62,6 +61,8 @@ class ProductReviewModel(Audit):
         db_table = 'ec_product_review'
 
     product_review_id = models.BigAutoField(primary_key=True)
+
     product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
     product_review = models.TextField(null=True, blank=True)

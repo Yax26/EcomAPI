@@ -47,3 +47,8 @@ SUCCESSFULLY_FETCHED_PRODUCT_DETAILS = "successfully fetched product details"
 DATA_ADDED_TO_CART_SUCCESSFULLY = "data added to cart successfully"
 FETCHED_CART_DATA_SUCCESSFULLY = "fetched cart data successfully"
 YOUR_CART_IS_EMPTY = "your cart is empty"
+
+# customer profile related constants
+
+PERSONAL_INFO_UPDATED_SUCCESSFULLY = "personal info updated successfully"
+ADDRESS_INFO_UPDATED_SUCCESSFULLY = "address info updated successfully"

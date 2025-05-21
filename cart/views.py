@@ -24,16 +24,19 @@ class CartManagement(APIView):
 
     @staticmethod
     def get(request):
+        try:
+            if Cart.objects.filter(is_deleted=False, is_checked_out=False, customer_id=request.user.customer_id).exists():
 
-        if Cart.objects.filter(is_deleted=False, is_checked_out=False, customer_id=request.user.customer_id).exists():
+                cart = Cart.objects.filter(
+                    is_deleted=False, is_checked_out=False, customer_id=request.user.customer_id).last()
 
-            cart = Cart.objects.filter(
-                is_deleted=False, is_checked_out=False, customer_id=request.user.customer_id).last()
+                return GenericSuccessResponse(data=FetchCartSerializer(cart).data, message=FETCHED_CART_DATA_SUCCESSFULLY, status=200)
 
-            return GenericSuccessResponse(data=FetchCartSerializer(cart).data, message=FETCHED_CART_DATA_SUCCESSFULLY, status=200)
+            else:
+                return CustomBadRequest(message=YOUR_CART_IS_EMPTY)
 
-        else:
-            return CustomBadRequest(message=YOUR_CART_IS_EMPTY)
+        except Exception:
+            return GenericException(request=request)
 
     @staticmethod
     def post(request):

@@ -247,7 +247,8 @@ class ProductsDetails(APIView):
                         }
 
                 return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_PRODUCT_DETAILS, status=200)
-
+            else:
+                return CustomBadRequest(message=BAD_REQUEST)
         except Products.DoesNotExist:
             return CustomBadRequest(message=DATA_NOT_FOUND)
 

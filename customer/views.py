@@ -42,8 +42,8 @@ class Registration(APIView):
                 "password" not in request.data or request.data["password"] == "" or
                 "first_name" not in request.data or request.data["first_name"] == "" or
                 "last_name" not in request.data or request.data["last_name"] == "" or
-                "middle_name" not in request.data or request.data["middle_name"] == "" or
-                "address" not in request.data or request.data["address"] == ""
+                "middle_name" not in request.data or request.data["middle_name"] == ""
+                # "address" not in request.data or request.data["address"] == ""
             ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
