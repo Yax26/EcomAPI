@@ -50,8 +50,11 @@ YOUR_CART_IS_EMPTY = "your cart is empty"
 
 # customer profile related constants
 
+PERSONAL_INFO_FETCHED_SUCCESSFULLY = "personal info fetched successfully"
 PERSONAL_INFO_UPDATED_SUCCESSFULLY = "personal info updated successfully"
 ADDRESS_INFO_UPDATED_SUCCESSFULLY = "address info updated successfully"
 COUNTRY_DOES_NOT_EXISTS = "country does not exists"
 STATE_DOES_NOT_EXISTS = "state does not exists"
 CITY_DOES_NOT_EXISTS = "city does not exists"
+INVALID_PHONE_NUMBER = "invalid phone number"
+INVALID_PHONE_NUMBER_FORMAT = "invalid phone number format"

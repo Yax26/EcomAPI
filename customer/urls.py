@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .profile import CityManagement, CountryManagement, ProfileAddressInfo, ProfilePersonalInfo, StateManagement
+from .profile import FetchProfileInfo, ProfileAddressInfo, ProfilePersonalInfo
 
 from .views import Registration, Logout, Login, ResetPassword
 
@@ -17,15 +17,17 @@ urlpatterns = [
 
     path("resetpassword/", ResetPassword.as_view()),
 
+    path("profileinfo/", FetchProfileInfo.as_view()),
+
     path("personalinfo/", ProfilePersonalInfo.as_view()),
 
     path("addressinfo/", ProfileAddressInfo.as_view()),
 
-    path("country/", CountryManagement.as_view()),
+    # path("country/", CountryManagement.as_view()),
 
-    path("state/", StateManagement.as_view()),
+    # path("state/", StateManagement.as_view()),
 
-    path("city/", CityManagement.as_view())
+    # path("city/", CityManagement.as_view())
 
 
 
