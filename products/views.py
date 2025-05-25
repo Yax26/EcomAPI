@@ -1,4 +1,5 @@
 from decimal import Decimal
+import json
 from rest_framework.views import APIView
 from django.db.models import Q
 
@@ -50,10 +51,112 @@ class SearchedProducts(APIView):
                 view_product_listing_serializer = ViewProductsListingSerializer(
                     paginated_products, many=True)
 
+                # data = {"product_list": view_product_listing_serializer.data,
+                #         "product_objects": product_objects,
+                #         "total_pages": len(view_product_listing_serializer.data)/3}
                 return GenericSuccessResponse(view_product_listing_serializer.data, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
 
             else:
                 return CustomBadRequest(message=BAD_REQUEST)
+
+        except Exception:
+            return GenericException(request=request)
+
+
+class SortAndFilterProducts(APIView):
+    @staticmethod
+    def get(request):
+        try:
+            search = request.query_params.get("search")
+            sort_type = request.query_params.get("sort_type")
+            price_range = request.query_params.get("price_range")
+            rating = request.query_params.get("rating")
+
+            if not search:
+                return CustomBadRequest(message=BAD_REQUEST)
+
+            priority_products = Products.objects.filter(
+                product_name__istartswith=search, is_deleted=False)
+
+            extra_id = priority_products.values_list(
+                'product_id', flat=True)
+
+            extra_products = Products.objects.filter(
+                product_name__icontains=search, is_deleted=False
+            ).exclude(product_id__in=extra_id)
+
+            if price_range:
+                price_range = json.loads(price_range)
+                min_price = float(price_range[0])
+                max_price = float(price_range[1])
+
+                priority_products = priority_products.filter(
+                    product_price__gt=min_price, product_price__lt=max_price)
+                extra_products = extra_products.filter(
+                    product_price__gt=min_price, product_price__lt=max_price)
+
+            if rating:
+                priority_products = priority_products.filter(
+                    product_rating=rating)
+                extra_products = extra_products.filter(
+                    product_rating=rating)
+
+            # sorting
+            if sort_type == "price_desc":
+                priority_products = priority_products.order_by(
+                    '-product_price')
+
+                extra_products = extra_products.order_by(
+                    '-product_price')
+
+            if sort_type == "price_asc":
+                priority_products = priority_products.order_by(
+                    'product_price')
+
+                extra_products = extra_products.order_by(
+                    'product_price')
+
+            if sort_type == "top_rated":
+                priority_products = priority_products.order_by(
+                    '-product_rating')
+
+                extra_products = extra_products.order_by(
+                    '-product_rating')
+
+            if sort_type == "popularity":
+                priority_products = priority_products.order_by(
+                    '-product_total_sales')
+
+                extra_products = extra_products.order_by(
+                    '-product_total_sales')
+
+            if sort_type == "discount":
+                priority_products = priority_products.order_by(
+                    '-product_discount')
+
+                extra_products = extra_products.order_by(
+                    '-product_discount')
+
+            if not sort_type or sort_type == "":
+                priority_products = priority_products
+
+                extra_products = extra_products
+
+            sorted_products = list(
+                priority_products) + list(extra_products)
+
+            paginator = CustomPagination()
+            paginated_products = paginator.paginate_queryset(
+                sorted_products, request)
+
+            view_product_listing_serializer = ViewProductsListingSerializer(
+                paginated_products, many=True)
+
+            # data = {"product_list": view_product_listing_serializer.data,
+            #         "product_objects": product_objects,
+            #         "total_pages": len(view_product_listing_serializer.data)/3}
+
+            return GenericSuccessResponse(view_product_listing_serializer.data, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
 
         except Exception:
             return GenericException(request=request)
@@ -137,7 +240,7 @@ class AddProductData(APIView):
                     "additional_specification" not in request.data):
 
                 return CustomBadRequest(message=BAD_REQUEST)
-            product_serializer = AddProductSerializer(data=request.data)
+            product_serializer = AddProductSerializer()
 
             if product_serializer.is_valid():
                 product_serializer.save()
@@ -157,8 +260,8 @@ class ProductRating(APIView):
     def post(request):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
-                "product_rating" not in request.data or request.data["product_rating"] == ""
-                ):
+                        "product_rating" not in request.data or request.data["product_rating"] == ""
+                    ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
             request.data['customer_id'] = request.user.customer_id
