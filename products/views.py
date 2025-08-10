@@ -1,5 +1,6 @@
 from decimal import Decimal
 import json
+import math
 from rest_framework.views import APIView
 from django.db.models import Q
 
@@ -43,7 +44,8 @@ class SearchedProducts(APIView):
                 ).exclude(product_id__in=extra_id)
 
                 products = list(priority_products) + list(extra_products)
-
+                print(len(products), products)
+                total_pages = math.ceil(len(products) / 3)
                 paginator = CustomPagination()
                 paginated_products = paginator.paginate_queryset(
                     products, request)
@@ -54,7 +56,12 @@ class SearchedProducts(APIView):
                 # data = {"product_list": view_product_listing_serializer.data,
                 #         "product_objects": product_objects,
                 #         "total_pages": len(view_product_listing_serializer.data)/3}
-                return GenericSuccessResponse(view_product_listing_serializer.data, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
+
+                res = {
+                    "product_list": view_product_listing_serializer.data,
+                    "total_pages": total_pages
+                }
+                return GenericSuccessResponse(res, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
 
             else:
                 return CustomBadRequest(message=BAD_REQUEST)
@@ -260,7 +267,7 @@ class ProductRating(APIView):
     def post(request):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
-                        "product_rating" not in request.data or request.data["product_rating"] == ""
+                    "product_rating" not in request.data or request.data["product_rating"] == ""
                     ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
