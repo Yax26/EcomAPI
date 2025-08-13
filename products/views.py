@@ -45,7 +45,7 @@ class SearchedProducts(APIView):
 
                 products = list(priority_products) + list(extra_products)
                 print(len(products), products)
-                total_pages = math.ceil(len(products) / 3)
+                total_pages = math.ceil(len(products) / 8)
                 paginator = CustomPagination()
                 paginated_products = paginator.paginate_queryset(
                     products, request)
