@@ -25,49 +25,52 @@ from products.paginations import CustomPagination
 from security.customer_authorization import CustomerJWTAuthentication
 
 
-class SearchedProducts(APIView):
-    @staticmethod
-    def get(request):
-        try:
-            search = request.query_params.get("search")
+# class SearchedProducts(APIView):
+#     @staticmethod
+#     def get(request):
+#         try:
+#             search = ""
 
-            if search:
+#             if request.query_params.get("search"):
+#                 search = request.query_params.get("search")
 
-                priority_products = Products.objects.filter(
-                    product_name__istartswith=search, is_deleted=False)
+#             if search != "":
 
-                extra_id = priority_products.values_list(
-                    'product_id', flat=True)
+#                 priority_products = Products.objects.filter(
+#                     product_name__istartswith=search, is_deleted=False)
 
-                extra_products = Products.objects.filter(
-                    product_name__icontains=search, is_deleted=False
-                ).exclude(product_id__in=extra_id)
+#                 extra_id = priority_products.values_list(
+#                     'product_id', flat=True)
 
-                products = list(priority_products) + list(extra_products)
-                print(len(products), products)
-                total_pages = math.ceil(len(products) / 8)
-                paginator = CustomPagination()
-                paginated_products = paginator.paginate_queryset(
-                    products, request)
+#                 extra_products = Products.objects.filter(
+#                     product_name__icontains=search, is_deleted=False
+#                 ).exclude(product_id__in=extra_id)
 
-                view_product_listing_serializer = ViewProductsListingSerializer(
-                    paginated_products, many=True)
+#                 products = list(priority_products) + list(extra_products)
+#                 print(len(products), products)
+#                 total_pages = math.ceil(len(products) / 8)
+#                 paginator = CustomPagination()
+#                 paginated_products = paginator.paginate_queryset(
+#                     products, request)
 
-                # data = {"product_list": view_product_listing_serializer.data,
-                #         "product_objects": product_objects,
-                #         "total_pages": len(view_product_listing_serializer.data)/3}
+#                 view_product_listing_serializer = ViewProductsListingSerializer(
+#                     paginated_products, many=True)
 
-                res = {
-                    "product_list": view_product_listing_serializer.data,
-                    "total_pages": total_pages
-                }
-                return GenericSuccessResponse(res, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
+#                 # data = {"product_list": view_product_listing_serializer.data,
+#                 #         "product_objects": product_objects,
+#                 #         "total_pages": len(view_product_listing_serializer.data)/3}
 
-            else:
-                return CustomBadRequest(message=BAD_REQUEST)
+#                 data = {
+#                     "product_list": view_product_listing_serializer.data,
+#                     "total_pages": total_pages
+#                 }
+#                 return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
 
-        except Exception:
-            return GenericException(request=request)
+#             else:
+#                 return CustomBadRequest(message=BAD_REQUEST)
+
+#         except Exception:
+#             return GenericException(request=request)
 
 
 class SortAndFilterProducts(APIView):
@@ -159,22 +162,87 @@ class SortAndFilterProducts(APIView):
             view_product_listing_serializer = ViewProductsListingSerializer(
                 paginated_products, many=True)
 
-            # data = {"product_list": view_product_listing_serializer.data,
-            #         "product_objects": product_objects,
-            #         "total_pages": len(view_product_listing_serializer.data)/3}
+            total_pages = math.ceil(len(sorted_products) / 8)
 
-            return GenericSuccessResponse(view_product_listing_serializer.data, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
+            data = {"product_list": view_product_listing_serializer.data,
+                    "total_pages": total_pages}
+
+            return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_SEARCHED_PRODUCTS, status=200)
 
         except Exception:
             return GenericException(request=request)
 
 
-class FeaturedProducts(APIView):
+# class FeaturedProducts(APIView):
+#     @staticmethod
+#     def get(request):
+#         try:
+
+#             feature_id = request.query_params.get("feature_id")
+#             feature = Features.objects.get(feature_id=feature_id)
+
+#             if feature.max_price:
+#                 products = Products.objects.filter(
+#                     product_price__lte=Decimal(feature.max_price), is_deleted=False).order_by('product_price')
+
+#             if feature.min_price:
+#                 products = Products.objects.filter(
+#                     product_price__gte=Decimal(feature.min_price), is_deleted=False).order_by('-product_price')
+
+#             if feature.max_discount:
+#                 products = Products.objects.filter(
+#                     product_discount__lte=Decimal(feature.max_discount), is_deleted=False).order_by('-product_discount')
+
+#             if feature.min_discount:
+#                 products = Products.objects.filter(
+#                     product_discount__gte=Decimal(feature.min_discount), is_deleted=False).order_by('-product_discount')
+
+#             if feature.arrival_date:
+#                 products = Products.objects.filter(
+#                     product_arival_date__gte=feature.arrival_date, is_deleted=False).order_by('-product_arival_date')
+
+#             if feature.category_id:
+#                 products = Products.objects.filter(
+#                     product_category=feature.category_id, is_deleted=False)
+
+#             if feature.total_sales:
+#                 products = Products.objects.filter(
+#                     product_total_sales__gte=feature.total_sales, is_deleted=False).order_by('-product_total_sales')
+
+#             if feature.feature_keywords:
+#                 products = Products.objects.filter(
+#                     Q(product_keywords__icontains=feature.feature_keywords) |
+#                     Q(product_name__icontains=feature.feature_keywords), is_deleted=False)
+
+#             paginator = CustomPagination()
+#             paginated_products = paginator.paginate_queryset(
+#                 products, request)
+#             serialized_products = ViewProductsListingSerializer(
+#                 paginated_products, many=True)
+#             total_pages = math.ceil(len(products) / 8)
+#             data = {
+#                 "product_list": serialized_products.data,
+#                 "total_pages": total_pages
+#             }
+
+#             return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
+
+#         except Exception:
+#             return GenericException(request=request)
+
+
+class FeaturedProductsSortAndFilter(APIView):
     @staticmethod
     def get(request):
         try:
-
             feature_id = request.query_params.get("feature_id")
+            sort_type = request.query_params.get("sort_type")
+            price_range = request.query_params.get("price_range")
+            rating = request.query_params.get("rating")
+
+            if not feature_id:
+                return CustomBadRequest(message=BAD_REQUEST)
+
             feature = Features.objects.get(feature_id=feature_id)
 
             if feature.max_price:
@@ -210,18 +278,84 @@ class FeaturedProducts(APIView):
                     Q(product_keywords__icontains=feature.feature_keywords) |
                     Q(product_name__icontains=feature.feature_keywords), is_deleted=False)
 
+            if price_range:
+                price_range = json.loads(price_range)
+                min_price = float(price_range[0])
+                max_price = float(price_range[1])
+
+                products = products.filter(
+                    product_price__gt=min_price, product_price__lt=max_price)
+
+            if rating:
+                products = products.filter(product_rating=rating)
+
+            # sorting
+            if sort_type == "price_desc":
+                products = products.order_by('-product_price')
+
+            if sort_type == "price_asc":
+                products = products.order_by('product_price')
+
+            if sort_type == "top_rated":
+                products = products.order_by('-product_rating')
+
+            if sort_type == "popularity":
+                products = products.order_by('-product_total_sales')
+            if sort_type == "discount":
+                products = products.order_by('-product_discount')
+            if not sort_type or sort_type == "":
+                products = products.order_by('-product_total_sales')
+            sorted_products = products
             paginator = CustomPagination()
             paginated_products = paginator.paginate_queryset(
-                products, request)
-            serialized_products = ViewProductsListingSerializer(
+                sorted_products, request)
+            view_product_listing_serializer = ViewProductsListingSerializer(
                 paginated_products, many=True)
-
-            return GenericSuccessResponse(serialized_products.data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
-
+            total_pages = math.ceil(len(products) / 8)
+            data = {
+                "product_list": view_product_listing_serializer.data,
+                "total_pages": total_pages
+            }
+            return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
         except Exception:
             return GenericException(request=request)
 
-# just for testing purpose
+
+class SearchedFeatures(APIView):
+    @staticmethod
+    def get(request):
+        try:
+            search = ""
+
+            if request.query_params.get("search"):
+                search = request.query_params.get("search")
+
+            if search != "":
+
+                features = Features.objects.filter(
+                    Q(feature_keywords__icontains=search) |
+                    Q(feature_title__icontains=search), is_deleted=False)
+
+                paginator = CustomPagination()
+                paginated_features = paginator.paginate_queryset(
+                    features, request)
+
+                view_features_serializer = ViewFeaturesListingSerializer(
+                    paginated_features, many=True)
+
+                total_pages = math.ceil(len(features) / 8)
+
+                data = {
+                    "feature_list": view_features_serializer.data,
+                    "total_pages": total_pages
+                }
+                return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_SEARCHED_FEATURES, status=200)
+
+            else:
+                return CustomBadRequest(message=BAD_REQUEST)
+
+        except Exception:
+            return GenericException(request=request)
 
 
 class AddProductData(APIView):
@@ -267,8 +401,8 @@ class ProductRating(APIView):
     def post(request):
         try:
             if ("product_id" not in request.data or request.data["product_id"] == "" or
-                    "product_rating" not in request.data or request.data["product_rating"] == ""
-                    ):
+                "product_rating" not in request.data or request.data["product_rating"] == ""
+                ):
                 return CustomBadRequest(message=BAD_REQUEST)
 
             request.data['customer_id'] = request.user.customer_id

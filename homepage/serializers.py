@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from homepage.models import Features, Banner
+from homepage.models import Categories, Features, Banner
 
 
 class ViewFeaturesMASerializer(serializers.ModelSerializer):
@@ -31,6 +31,14 @@ class AddFeaturesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Features
         fields = "__all__"
+
+
+class ViewCategoriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categories
+        fields = ["category_id",
+                  "category_title",]
+        read_only_fields = fields
 
 
 class BannerSerializer(serializers.ModelSerializer):

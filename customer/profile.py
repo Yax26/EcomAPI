@@ -6,7 +6,7 @@ from phonenumbers import NumberParseException
 from common.constants import (ADDRESS_INFO_UPDATED_SUCCESSFULLY,
                               BAD_REQUEST,
                               DATA_IS_INVALID,
-                              DATA_NOT_FOUND, INVALID_PHONE_NUMBER, PERSONAL_INFO_FETCHED_SUCCESSFULLY,
+                              DATA_NOT_FOUND, INVALID_PHONE_NUMBER, INVALID_PHONE_NUMBER_FORMAT, PERSONAL_INFO_FETCHED_SUCCESSFULLY,
                               PERSONAL_INFO_UPDATED_SUCCESSFULLY)
 
 from customer.models import Customer

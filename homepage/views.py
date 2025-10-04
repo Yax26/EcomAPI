@@ -10,8 +10,8 @@ from common.constants import BAD_REQUEST, DATA_IS_INVALID, HOMEPAGE_DATA_ADDED_S
 from exceptions.generic import CustomBadRequest, GenericException
 from exceptions.generic_response import GenericSuccessResponse
 
-from homepage.serializers import AddFeaturesSerializer, BannerSerializer, ViewFeaturesMASerializer, ViewFeaturesWASerializer
-from homepage.models import Banner, Features
+from homepage.serializers import AddFeaturesSerializer, BannerSerializer, ViewCategoriesSerializer, ViewFeaturesMASerializer, ViewFeaturesWASerializer
+from homepage.models import Banner, Categories, Features
 
 
 class HomePageMA(APIView):
@@ -53,7 +53,7 @@ class HomePageWA(APIView):
         try:
             features = Features.objects.filter(is_deleted=False)
             banner = Banner.objects.filter(is_deleted=False)
-
+            categories = Categories.objects.filter(is_deleted=False)
             if request.user != AnonymousUser():
 
                 customer_name = ""
@@ -63,10 +63,12 @@ class HomePageWA(APIView):
 
                 data = {'customer_name': customer_name,
                         'features': ViewFeaturesWASerializer(features, many=True).data,
+                        'categories': ViewCategoriesSerializer(categories, many=True).data,
                         'banner': BannerSerializer(banner, many=True).data}
 
             else:
                 data = {'features': ViewFeaturesWASerializer(features, many=True).data,
+                        'categories': ViewCategoriesSerializer(categories, many=True).data,
                         'banner': BannerSerializer(banner, many=True).data}
 
             return GenericSuccessResponse(data, message=SUCCESSFULLY_FETCHED_HOMEPAGE_DATA, status=200)
@@ -88,10 +90,10 @@ class AddFeatureData(APIView):
                 "max_discount" not in request.data or
                 "min_discount" not in request.data or
                 "arrival_date" not in request.data or
-                "feature_image1" not in request.data or request.data["feature_image1"] == "" or
-                "feature_image2" not in request.data or request.data["feature_image2"] == "" or
-                "feature_image3" not in request.data or request.data["feature_image3"] == "" or
-                    "feature_image4" not in request.data or request.data["feature_image4"] == ""):
+                "feature_image1" not in request.data or
+                "feature_image2" not in request.data or
+                "feature_image3" not in request.data or
+                    "feature_image4" not in request.data):
 
                 return CustomBadRequest(message=BAD_REQUEST)
 
