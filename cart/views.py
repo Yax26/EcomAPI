@@ -1,13 +1,11 @@
-from decimal import Decimal
 from rest_framework.views import APIView
-from decimal import Decimal, ROUND_HALF_UP
 
 from cart.models import Cart
 from cart.serializers import CartSerializer, FetchCartSerializer
 
 from common.constants import (BAD_REQUEST,
                               DATA_ADDED_TO_CART_SUCCESSFULLY,
-                              DATA_IS_INVALID, DATA_NOT_FOUND,
+                              DATA_IS_INVALID,
                               FETCHED_CART_DATA_SUCCESSFULLY,
                               YOUR_CART_IS_EMPTY)
 
@@ -39,225 +37,36 @@ class CartManagement(APIView):
             return GenericException(request=request)
 
     @staticmethod
-    def post(request):
+    def patch(request):
         try:
-            if "product_id" not in request.data or request.data["product_id"] == "" or "cart" not in request.data or request.data["cart"] == "":
+            if request.data["cart"] == "" or "cart" not in request.data:
                 return CustomBadRequest(message=BAD_REQUEST)
 
-            cart = request.data["cart"]
-            customer_id = request.user.customer_id
-            request.data["customer_id"] = customer_id
+            cart = request.data['cart']
 
-            product_details = Products.objects.get(
-                product_id=request.data["product_id"], is_deleted=False)
+            cart["customer_id"] = request.user.customer_id
 
-            if Cart.objects.filter(is_deleted=False, is_checked_out=False, customer_id=customer_id).exists() and cart != []:
-                product_found = False
-
-                for i in cart["products"]:
-                    if i["product_id"] == request.data["product_id"]:
-                        if "action" in request.data and request.data["action"] == "remove":
-                            if i["product_quantity"] > 1:
-                                i["product_quantity"] -= 1
-                            else:
-                                cart["products"].remove(i)
-                        else:
-                            i["product_quantity"] += 1
-
-                        product_found = True
-                if product_found == False:
-                    products = {"product_id": product_details.product_id,
-                                "product_price": str(product_details.product_price),
-                                "product_image": str(product_details.product_image),
-                                "product_name": product_details.product_name,
-                                "product_quantity": 1}
-
-                    cart["products"].append(products)
-
-                TWO_PLACES = Decimal('0.01')
-                if len(cart["products"]) > 0:
-                    cart["sub_total"] = sum(
-                        Decimal(p["product_price"]) * p["product_quantity"]
-                        for p in cart["products"]
-                    ).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                    cart["delivery_fees"] = (Decimal(
-                        '5') * cart["sub_total"] / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                    cart["tax"] = (Decimal('13') * cart["sub_total"] / Decimal('100')
-                                   ).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                    cart["total"] = (cart["sub_total"] + cart["delivery_fees"] +
-                                     cart["tax"]).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-                else:
-                    cart["sub_total"] = 0
-
-                    cart["delivery_fees"] = 0
-
-                    cart["tax"] = 0
-
-                    cart["total"] = 0
-
-                cart_db = Cart.objects.filter(
-                    is_deleted=False, is_checked_out=False, customer_id=customer_id).last()
-                cart_db.products = cart['products']
-                cart_db.sub_total = cart['sub_total']
-                cart_db.delivery_fees = cart['delivery_fees']
-                cart_db.tax = cart['tax']
-                cart_db.total = cart['total']
-                cart_db.save()
-                return GenericSuccessResponse(data=FetchCartSerializer(cart).data, message=DATA_ADDED_TO_CART_SUCCESSFULLY, status=201)
-
-            else:
-
-                products = [{"product_id": product_details.product_id,
-                             "product_price": str(product_details.product_price),
-                             "product_image": str(product_details.product_image),
-                             "product_name": product_details.product_name,
-                             "product_quantity": 1}
-                            ]
-                request.data["products"] = products
-
-                TWO_PLACES = Decimal("0.01")
-
-                total_amount = Decimal(str(product_details.product_price)).quantize(
-                    TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                request.data["sub_total"] = total_amount
-
-                request.data["delivery_fees"] = (Decimal(
-                    '5') * total_amount / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                request.data["tax"] = (Decimal(
-                    '13') * total_amount / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                request.data["total"] = (request.data["sub_total"] + request.data["delivery_fees"] +
-                                         request.data["tax"]).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                cart_serializer = CartSerializer(data=request.data)
+            if not Cart.objects.filter(is_deleted=False, is_checked_out=False, customer_id=request.user.customer_id).exists():
+                cart_serializer = CartSerializer(data=request.data['cart'])
 
                 if cart_serializer.is_valid(raise_exception=True):
                     cart_serializer.save()
-
-                    return GenericSuccessResponse(data=FetchCartSerializer(cart).data, message=DATA_ADDED_TO_CART_SUCCESSFULLY, status=201)
-
+                    return GenericSuccessResponse(data=FetchCartSerializer(cart).data, message=DATA_ADDED_TO_CART_SUCCESSFULLY, status=200)
                 else:
                     return CustomBadRequest(DATA_IS_INVALID)
 
-        except Products.DoesNotExist:
-            return CustomBadRequest(message=DATA_NOT_FOUND)
+            cart = Cart.objects.filter(
+                is_deleted=False, is_checked_out=False, customer_id=request.user.customer_id).last()
 
-        except Exception:
-            return GenericException(request=request)
+            cart_serializer = FetchCartSerializer(
+                cart, data=request.data['cart'])
 
+            if cart_serializer.is_valid(raise_exception=True):
+                cart_serializer.save()
+                return GenericSuccessResponse(data=FetchCartSerializer(cart).data, message=DATA_ADDED_TO_CART_SUCCESSFULLY, status=200)
 
-class AddToCart(APIView):
-    authentication_classes = [CustomerJWTAuthentication]
-
-    @staticmethod
-    def post(request):
-        try:
-
-            if "product_id" not in request.data or request.data["product_id"] == "":
-                return CustomBadRequest(message=BAD_REQUEST)
-
-            cart = request.data["cart"]
-            customer_id = request.user.customer_id
-            request.data["customer_id"] = customer_id
-
-            product_details = Products.objects.get(
-                product_id=request.data["product_id"], is_deleted=False)
-
-            if Cart.objects.filter(is_deleted=False, is_checked_out=False, customer_id=customer_id).exists() and cart != []:
-                product_found = False
-
-                for i in cart["products"]:
-                    if i["product_id"] == request.data["product_id"]:
-                        if "action" in request.data and request.data["action"] == "remove":
-                            if i["product_quantity"] > 1:
-                                i["product_quantity"] -= 1
-                            else:
-                                cart["products"].remove(i)
-                        else:
-                            i["product_quantity"] += 1
-
-                    product_found = True
-                if product_found == False:
-                    products = {"product_id": product_details.product_id,
-                                "product_price": str(product_details.product_price),
-                                "product_image": str(product_details.product_image),
-                                "product_name": product_details.product_name,
-                                "product_quantity": 1}
-
-                    cart["products"].append(products)
-
-                TWO_PLACES = Decimal('0.01')
-                if len(cart["products"]) > 0:
-                    cart["sub_total"] = sum(
-                        Decimal(p["product_price"]) * p["product_quantity"]
-                        for p in cart["products"]
-                    ).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                    cart["delivery_fees"] = (Decimal(
-                        '5') * cart["sub_total"] / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                    cart["tax"] = (Decimal('13') * cart["sub_total"] / Decimal('100')
-                                   ).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-                    cart["total"] = (cart["sub_total"] + cart["delivery_fees"] +
-                                     cart["tax"]).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-                else:
-                    cart["sub_total"] = 0
-
-                    cart["delivery_fees"] = 0
-
-                    cart["tax"] = 0
-
-                    cart["total"] = 0
-                cart_db = Cart.objects.filter(
-                    is_deleted=False, is_checked_out=False, customer_id=customer_id).last()
-                cart_db.products = cart['products']
-                cart_db.sub_total = cart['sub_total']
-                cart_db.delivery_fees = cart['delivery_fees']
-                cart_db.tax = cart['tax']
-                cart_db.total = cart['total']
-                cart_db.save()
-
-                return GenericSuccessResponse(data=FetchCartSerializer(cart_db).data, message=DATA_ADDED_TO_CART_SUCCESSFULLY, status=201)
             else:
-                products = [{"product_id": product_details.product_id,
-                             "product_price": str(product_details.product_price),
-                             "product_image": str(product_details.product_image),
-                             "product_name": product_details.product_name,
-                             "product_quantity": 1}
-                            ]
-                request.data["products"] = products
+                return CustomBadRequest(DATA_IS_INVALID)
 
-                TWO_PLACES = Decimal("0.01")
-
-                total_amount = Decimal(str(product_details.product_price)).quantize(
-                    TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                request.data["sub_total"] = total_amount
-
-                request.data["delivery_fees"] = (Decimal(
-                    '5') * total_amount / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                request.data["tax"] = (Decimal(
-                    '13') * total_amount / Decimal('100')).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                request.data["total"] = (request.data["sub_total"] + request.data["delivery_fees"] +
-                                         request.data["tax"]).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
-
-                cart_serializer = CartSerializer(data=request.data)
-
-                if cart_serializer.is_valid(raise_exception=True):
-                    cart_serializer.save()
-
-                    return GenericSuccessResponse(data=FetchCartSerializer(cart_serializer.instance).data, message=DATA_ADDED_TO_CART_SUCCESSFULLY, status=201)
-
-                else:
-                    return CustomBadRequest(DATA_IS_INVALID)
-        except Products.DoesNotExist:
-            return CustomBadRequest(message=DATA_NOT_FOUND)
-        except Exception:
+        except Exception as e:
             return GenericException(request=request)

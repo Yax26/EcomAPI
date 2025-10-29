@@ -14,3 +14,4 @@ class FetchCartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ["cart_id", "products", "sub_total",
                   "delivery_fees", "tax", "total"]
+

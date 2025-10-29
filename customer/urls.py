@@ -23,12 +23,5 @@ urlpatterns = [
 
     path("addressinfo/", ProfileAddressInfo.as_view()),
 
-    # path("country/", CountryManagement.as_view()),
-
-    # path("state/", StateManagement.as_view()),
-
-    # path("city/", CityManagement.as_view())
-
-
 
 ]
